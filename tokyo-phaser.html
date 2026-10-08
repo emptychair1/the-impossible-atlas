@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V45</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V46</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -47,7 +47,7 @@ const pedestrians=Array.from({length:30},(_,i)=>({type:i%5,phase:(i+crowdRandom(
 let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[],lightFields=[];
 const ROOT='assets/tokyo-scenes/';
 const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
-let game,world,glows=[],sceneImages=[],atmosphereVeil=null,foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
+let game,world,glows=[],sceneImages=[],atmosphereVeil=null,foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,entrance={phase:'walk',elapsed:0},luminosity=1,viewport={w:innerWidth,h:innerHeight};
 const status=document.getElementById('status');
 function makeEmission(scene,key){
  const source=scene.textures.get(key).getSourceImage(),w=source.width,h=source.height;
@@ -262,8 +262,22 @@ class Lab extends Phaser.Scene{
   });
   const sizes=sceneImages.map(pair=>pair.original.width*h/pair.original.height);
   const total=sizes.reduce((a,b)=>a+b,0);
-  travel=Phaser.Math.Clamp(travel+move*Math.max(165,Math.min(230,h*.24))*dt/1000,0,Math.max(0,total-w));
-  if(move)walkClock+=dt*.01;
+  const heroX=Math.min(w*.4,w-74);
+  const sceneStart=sizes[0],sceneWidth=sizes[1];
+  const stairsStart=sceneStart+sceneWidth*(1050/1536);
+  const doorWorld=sceneStart+sceneWidth*(1215/1536);
+  const walkingSpeed=Math.max(165,Math.min(230,h*.24));
+  if(entrance.phase==='walk'){
+   const next=Phaser.Math.Clamp(travel+move*walkingSpeed*dt/1000,0,Math.max(0,total-w));
+   if(move>0&&travel+heroX<stairsStart&&next+heroX>=stairsStart){
+    travel=Phaser.Math.Clamp(stairsStart-heroX,0,Math.max(0,total-w));
+    entrance.phase='stairs';entrance.elapsed=0;move=0;
+   }else travel=next;
+   if(move)walkClock+=dt*.01;
+  }else if(entrance.phase==='stairs'){
+   entrance.elapsed=Math.min(1,entrance.elapsed+dt/3700);
+   if(entrance.elapsed>=1)entrance.phase='crouch';
+  }
   let x=-travel;
   sceneImages.forEach((pair,i)=>{
    for(const image of [pair.original,pair.emission])image.setPosition(x,0).setDisplaySize(sizes[i],h);
@@ -282,7 +296,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V45 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V46 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
@@ -306,14 +320,26 @@ class Lab extends Phaser.Scene{
   });
   const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575)),feetY=h*.845+18,t=time*.001;
   if(heroActor&&heroFrames.length){
-   const frame=heroFrames[move?Math.floor(walkClock)%heroFrames.length:1];
-   const scale=heroHeight/390,heroX=Math.min(w*.4,w-74);
-   const px=heroX-frame.anchorX*scale,py=feetY-frame.anchorY*scale;
-   heroActor.setTint(0xb5bfcb).setTexture(frame.key).setPosition(px,py)
-    .setDisplaySize(frame.width*scale,frame.height*scale).setFlipX(move<0);
-   heroLight.setTexture(frame.key).setPosition(px,py)
-    .setDisplaySize(frame.width*scale,frame.height*scale).setFlipX(move<0);
-   const sample=sampleNeon(heroX+travel,feetY-heroHeight*.8,sizes,h);
+   const stairT=entrance.phase==='walk'?0:Phaser.Math.Easing.Sine.InOut(entrance.elapsed);
+   const crouched=entrance.phase==='crouch';
+   const frame=heroFrames[entrance.phase==='walk'?(move?Math.floor(walkClock)%heroFrames.length:1):
+    (crouched?1:Math.floor(time*.009)%heroFrames.length)];
+   const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575));
+   const baseScale=heroHeight/390;
+   const scale=baseScale*(1-.44*stairT);
+   const footWorld=stairsStart+(doorWorld-stairsStart)*stairT;
+   const pxWorld=entrance.phase==='walk'?travel+heroX:footWorld;
+   const feet=entrance.phase==='walk'?feetY:h*(.85-.16*stairT);
+   const crouchFactor=crouched?.65:1;
+   const drawX=pxWorld-travel-frame.anchorX*scale;
+   const drawY=feet-frame.anchorY*scale*crouchFactor;
+   for(const actor of [heroActor,heroLight]){
+    actor.setTexture(frame.key).setPosition(drawX,drawY)
+     .setDisplaySize(frame.width*scale,frame.height*scale*crouchFactor)
+     .setFlipX(entrance.phase==='walk'&&move<0);
+   }
+   heroActor.setTint(0xb5bfcb);
+   const sample=sampleNeon(pxWorld,feet-heroHeight*.8*scale/baseScale,sizes,h);
    smoothLight(heroLighting,sample,dt);
    heroLight.setTint(Phaser.Display.Color.GetColor(...heroLighting.color.map(Math.round)))
     .setAlpha(heroLighting.strength*.48);
@@ -322,7 +348,14 @@ class Lab extends Phaser.Scene{
    const frames=crowdTextures[p.type],f=frames[Math.floor(t*(6.5+p.speed*.025)+p.step)%frames.length];
    const range=w+heroHeight*2,worldTravel=t*p.speed+p.phase*range+(p.flip?travel:-travel),progress=((worldTravel%range)+range)%range;
    const x=p.flip?w+heroHeight-progress:progress-heroHeight,scale=heroHeight*1.15/Math.max(1,f.height);
-   const px=x-f.anchorX*scale,py=feetY-f.anchorY*scale;
+   // When the protagonist takes the stairs, nearby walkers gently clear his sightline.
+   const clearing=entrance.phase==='walk'?0:Phaser.Math.Easing.Sine.InOut(Math.min(1,entrance.elapsed*2));
+   const targetX=doorWorld-travel;
+   const distance=x-targetX;
+   const proximity=Math.max(0,1-Math.abs(distance)/(w*.31));
+   const direction=distance<0?-1:1;
+   const dispersal=direction*clearing*proximity*52;
+   const px=x+dispersal-f.anchorX*scale,py=feetY-f.anchorY*scale;
    // Stable per-walker depth: alternate near and far lanes without changing approved paths.
    // The hero remains at depth 20/21; near-lane walkers occlude him, far-lane walkers pass behind.
    const near=p.type===3||p.type===4||pedestrians.indexOf(p)%3===0;
