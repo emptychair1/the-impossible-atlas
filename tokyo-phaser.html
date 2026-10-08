@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V49</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V50</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const TURN_PATH='assets/tokyo-scenes/tokyo_turn_8frames_RGBA.png';
 const ENTRANCE_PATH='assets/7A7F12BE-E094-4EA1-ACDD-8A203F705564.png';
@@ -24,7 +24,7 @@ function extractEntranceFrames(scene,img){
  const alpha=(x,y)=>data[(y*w+x)*4+3];
  let opaque=0,transparent=0;
  for(let y=0;y<h;y+=11)for(let x=0;x<w;x+=11){const a=alpha(x,y);if(a<10)transparent++;else if(a>245)opaque++}
- if(transparent<opaque*.03){console.error('V49: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
+ if(transparent<opaque*.03){console.error('V50: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
  // Find actual row bands from the alpha silhouette, not from equal thirds.
  const rowOccupied=new Uint8Array(h);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(alpha(x,y)>32){rowOccupied[y]=1;break}
@@ -32,7 +32,7 @@ function extractEntranceFrames(scene,img){
  for(let y=0;y<=h;y++){const on=y<h&&rowOccupied[y];if(on&&start<0)start=y;if(!on&&start>=0){bands.push([start,y]);start=-1}}
  // Minor disconnected flecks must not create extra rows.
  const substantial=bands.filter(([s,e])=>e-s>=h*.065);
- if(substantial.length!==3){console.error('V49: Expected 3 separate alpha rows, found',substantial.length);return null}
+ if(substantial.length!==3){console.error('V50: Expected 3 separate alpha rows, found',substantial.length);return null}
  const specs=[['turn',8],['stairs',8],['crouch',6]],out={turn:[],stairs:[],crouch:[]};
  for(let r=0;r<3;r++){
   const [name,count]=specs[r],[top,bottom]=substantial[r];
@@ -42,12 +42,12 @@ function extractEntranceFrames(scene,img){
   for(let x=0;x<=w;x++){const on=x<w&&colOccupied[x];if(on&&left<0)left=x;if(!on&&left>=0){runs.push([left,x]);left=-1}}
   // Merge tiny gaps inside a character; keep the larger gutters between poses.
   const gutters=[];for(let i=0;i<runs.length-1;i++)gutters.push({i,gap:runs[i+1][0]-runs[i][1]});
-  if(runs.length<count){console.error('V49: Not enough isolated poses in',name,runs.length);return null}
+  if(runs.length<count){console.error('V50: Not enough isolated poses in',name,runs.length);return null}
   const separators=gutters.sort((a,b)=>b.gap-a.gap).slice(0,count-1).map(g=>g.i).sort((a,b)=>a-b);
   const groups=[];let from=0;
   for(const sep of separators){groups.push([runs[from][0],runs[sep][1]]);from=sep+1}
   groups.push([runs[from][0],runs[runs.length-1][1]]);
-  if(groups.length!==count){console.error('V49: Invalid frame groups for',name);return null}
+  if(groups.length!==count){console.error('V50: Invalid frame groups for',name);return null}
   for(let i=0;i<count;i++){
    const [x0,x1]=groups[i];let minX=x1,minY=bottom,maxX=x0-1,maxY=top-1;
    for(let y=top;y<bottom;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>32){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
@@ -59,7 +59,7 @@ function extractEntranceFrames(scene,img){
    out[name].push({key,width:fw,height:fh,anchorX:fw/2,anchorY:fh});
   }
  }
- console.info('V49 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
+ console.info('V50 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
  return out;
 }
 
@@ -280,9 +280,9 @@ class Lab extends Phaser.Scene{
      const key='approved-turn-'+i;this.textures.addCanvas(key,canvas);
      turnFrames.push({key,width:224,height:560,anchorX:112,anchorY:560});
     }
-    console.info('V49: approved eight-frame turn loaded');
-   }else console.error('V49: turn PNG has no transparent samples');
-  }else console.error('V49: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
+    console.info('V50: approved eight-frame turn loaded');
+   }else console.error('V50: turn PNG has no transparent samples');
+  }else console.error('V50: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
   const candidate=extractEntranceFrames(this,this.textures.get('entrance-sheet').getSourceImage());
   if(candidate){entranceFrames=candidate;entranceReady=true}
   const heroSource=this.textures.get('hero-sheet').getSourceImage();
@@ -345,7 +345,7 @@ class Lab extends Phaser.Scene{
    if(move)walkClock+=dt*.01;
   }else if(entrance.phase==='turn'){
    entrance.elapsed=Math.min(1,entrance.elapsed+dt/1000);
-   if(entrance.elapsed>=1){entrance.phase='stairs';entrance.elapsed=0}
+   if(entrance.elapsed>=1){entrance.phase='turn-hold';entrance.elapsed=1}
   }else if(entrance.phase==='stairs'){
    entrance.elapsed=Math.min(1,entrance.elapsed+dt/3700);
    if(entrance.elapsed>=1){entrance.phase='crouch';entrance.elapsed=0;}
@@ -369,7 +369,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V49 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V50 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
@@ -393,18 +393,18 @@ class Lab extends Phaser.Scene{
   });
   const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575)),feetY=h*.845+18,t=time*.001;
   if(heroActor&&heroFrames.length){
-   const stairT=entrance.phase==='walk'||entrance.phase==='turn'?0:entrance.phase==='crouch'?1:Phaser.Math.Easing.Sine.InOut(entrance.elapsed);
+   const stairT=entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?0:entrance.phase==='crouch'?1:Phaser.Math.Easing.Sine.InOut(entrance.elapsed);
    const crouched=entrance.phase==='crouch';
-   const frames=entrance.phase==='turn'&&turnFrames.length===8?turnFrames:entranceReady&&entrance.phase!=='walk'?entranceFrames[entrance.phase]:heroFrames;
+   const frames=(entrance.phase==='turn'||entrance.phase==='turn-hold')&&turnFrames.length===8?turnFrames:entranceReady&&entrance.phase!=='walk'?entranceFrames[entrance.phase]:heroFrames;
    const frame=entrance.phase==='walk'?heroFrames[move?Math.floor(walkClock)%heroFrames.length:1]:
     frames[Math.min(frames.length-1,Math.floor(entrance.elapsed*frames.length))];
    const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575));
    const baseScale=heroHeight/390;
-   const referenceHeight=entrance.phase==='turn'&&turnFrames.length===8?560:entranceReady&&entrance.phase!=='walk'?Math.max(...entranceFrames.turn.map(f=>f.height)):frame.height;
+   const referenceHeight=(entrance.phase==='turn'||entrance.phase==='turn-hold')&&turnFrames.length===8?560:entranceReady&&entrance.phase!=='walk'?Math.max(...entranceFrames.turn.map(f=>f.height)):frame.height;
    const scale=heroHeight/Math.max(1,referenceHeight)*(1-.44*stairT);
    const footWorld=stairsStart+(doorWorld-stairsStart)*stairT;
-   const pxWorld=entrance.phase==='walk'?travel+heroX:entrance.phase==='turn'?stairsStart:footWorld;
-   const feet=entrance.phase==='walk'||entrance.phase==='turn'?feetY:h*(.85-.16*stairT);
+   const pxWorld=entrance.phase==='walk'?travel+heroX:(entrance.phase==='turn'||entrance.phase==='turn-hold')?stairsStart:footWorld;
+   const feet=entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?feetY:h*(.85-.16*stairT);
    const crouchFactor=1;
    const drawX=pxWorld-travel-frame.anchorX*scale;
    const drawY=feet-frame.anchorY*scale*crouchFactor;
@@ -429,12 +429,12 @@ class Lab extends Phaser.Scene{
    const distance=x-targetX;
    const proximity=Math.max(0,1-Math.abs(distance)/(w*.31));
    const direction=distance<0?-1:1;
-   const dispersal=direction*clearing*proximity*52;
+   const dispersal=direction*clearing*proximity*Math.max(110,w*.28);
    const px=x+dispersal-f.anchorX*scale,py=feetY-f.anchorY*scale;
    // Stable per-walker depth: alternate near and far lanes without changing approved paths.
    // The hero remains at depth 20/21; near-lane walkers occlude him, far-lane walkers pass behind.
    const near=p.type===3||p.type===4||pedestrians.indexOf(p)%3===0;
-   actor.setDepth(near?22:18);
+   actor.setDepth(clearing&&proximity>.12?18:(near?22:18));
    actor.setTexture(f.key).setPosition(px,py).setDisplaySize(f.width*scale,f.height*scale);
    const sample=sampleNeon(x+travel,feetY-heroHeight*.8,sizes,h);
    smoothLight(entry,sample,dt);
