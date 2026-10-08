@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>The Impossible Atlas · Tokyo</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#fff;font-family:system-ui}canvas{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none}.hint{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);left:0;right:0;text-align:center;font-size:12px;letter-spacing:.16em;color:#f4e3b3;text-shadow:0 2px 8px #000;pointer-events:none;opacity:.8}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:14px;font-size:10px;letter-spacing:.15em;color:#fff9;text-shadow:0 2px 6px #000;pointer-events:none}</style></head><body><canvas id="game"></canvas><div class="badge">THE IMPOSSIBLE ATLAS · TOKYO</div><div class="hint">HOLD RIGHT OR LEFT TO WALK · ← →</div><script>
-const ROOT='assets/tokyo-scenes/';const SCENE_PATHS=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];const SPRITE_PATH=ROOT+'9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});function load(src){const im=new Image();im.src=src;return im}const scenes=SCENE_PATHS.map(load),sprite=load(SPRITE_PATH);let width=0,height=0,dpr=1,camera=0,walkClock=0,lastTime=0,frames=[],pointerDirection=0;const keyboard=new Set();
+const ROOT='assets/tokyo-scenes/';const SCENE_PATHS=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];const SPRITE_PATH=ROOT+'9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});function load(src){const im=new Image();im.src=src;return im}const scenes=SCENE_PATHS.map(load),sprite=load(SPRITE_PATH);let width=0,height=0,dpr=1,camera=0,walkClock=0,lastTime=0,frames=[],pointerDirection=0;const keyboard=new Set();const CROWD_PATHS=["assets/0783EB67-3E08-4DE3-A263-C74FD7748AA9.png","assets/58CB63CA-3F87-45BF-A05A-D3A9A0236C88.png","assets/68041383-DDD6-4A1D-BB02-72EAE018938C.png","assets/9072EA61-C635-4DE8-BDA8-A2538256E0CA.png","assets/C8D78CBB-5936-429C-B658-64B8FC235EE3.png"];const crowdSprites=CROWD_PATHS.map(load),crowdFrames=crowdSprites.map(()=>[]);
 function resize(){const v=window.visualViewport;width=Math.round(v?v.width:innerWidth);height=Math.round(v?v.height:innerHeight);dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high'}addEventListener('resize',resize);if(window.visualViewport)visualViewport.addEventListener('resize',resize);resize();
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','a','d','A','D'].includes(e.key)){e.preventDefault();keyboard.add(e.key)}});addEventListener('keyup',e=>keyboard.delete(e.key));canvas.addEventListener('pointerdown',e=>{pointerDirection=e.clientX<width/2?-1:1;try{canvas.setPointerCapture(e.pointerId)}catch{}});canvas.addEventListener('pointerup',()=>pointerDirection=0);canvas.addEventListener('pointercancel',()=>pointerDirection=0);
 function extractSpriteFrames(image){
@@ -13,8 +13,48 @@ const additions=new Uint16Array(count);for(let pass=0;pass<6;pass++){additions.f
 const bounds=Array.from({length:16},()=>({minX:w,minY:h,maxX:0,maxY:0}));for(let i=0;i<count;i++){const owner=labels[i];if(!owner)continue;const x=i%w,y=(i/w)|0,b=bounds[owner-1];b.minX=Math.min(b.minX,x);b.maxX=Math.max(b.maxX,x);b.minY=Math.min(b.minY,y);b.maxY=Math.max(b.maxY,y)}
 return bounds.map((b,frameIndex)=>{const fw=b.maxX-b.minX+1,fh=b.maxY-b.minY+1,fc=document.createElement('canvas');fc.width=fw;fc.height=fh;const fx=fc.getContext('2d'),fd=fx.createImageData(fw,fh);let weight=0,hoodX=0;for(let y=b.minY;y<=b.maxY;y++)for(let x=b.minX;x<=b.maxX;x++){const si=y*w+x;if(labels[si]!==frameIndex+1)continue;const so=si*4,to=((y-b.minY)*fw+x-b.minX)*4;for(let k=0;k<4;k++)fd.data[to+k]=pixels[so+k];if(y<=b.minY+fh*.28&&pixels[so+3]>threshold){hoodX+=(x-b.minX)*pixels[so+3];weight+=pixels[so+3]}}fx.putImageData(fd,0,0);return{image:fc,width:fw,height:fh,anchorX:weight?hoodX/weight:fw/2,anchorY:fh}})}
 sprite.addEventListener('load',()=>{frames=extractSpriteFrames(sprite)},{once:true});if(sprite.complete&&sprite.naturalWidth)frames=extractSpriteFrames(sprite);
+
+function extractPedestrianFrames(image){
+ // Identical connected-alpha component isolation as the hero, generalized to eight frames.
+ const w=image.naturalWidth,h=image.naturalHeight,source=document.createElement('canvas');source.width=w;source.height=h;
+ const sc=source.getContext('2d',{willReadFrequently:true});sc.drawImage(image,0,0);
+ const pixels=sc.getImageData(0,0,w,h).data,count=w*h,labels=new Uint16Array(count),queue=new Uint32Array(count),components=[];
+ let label=0;const threshold=32;
+ for(let start=0;start<count;start++){
+  if(labels[start]||pixels[start*4+3]<=threshold)continue;
+  label++;let head=0,tail=0,area=0,minX=w,minY=h,maxX=0,maxY=0;labels[start]=label;queue[tail++]=start;
+  while(head<tail){const i=queue[head++],x=i%w,y=(i/w)|0;area++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+   for(let dy=-1;dy<=1;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const ni=ny*w+nx;if(!labels[ni]&&pixels[ni*4+3]>threshold){labels[ni]=label;queue[tail++]=ni}}}
+  }
+  if(area>Math.max(200,w*h*.0005))components.push({label,minX,minY,maxX,maxY,area});
+ }
+ components.sort((a,b)=>a.minY-b.minY||a.minX-b.minX);
+ if(components.length!==8){console.warn('Pedestrian sprite must contain eight separate transparent figures; found',components.length,image.src);return []}
+ const order=new Uint16Array(label+1);components.forEach((c,i)=>order[c.label]=i+1);
+ for(let i=0;i<count;i++)labels[i]=order[labels[i]]||0;
+ const additions=new Uint16Array(count);
+ for(let pass=0;pass<6;pass++){additions.fill(0);for(let i=0;i<count;i++){if(labels[i]||!pixels[i*4+3])continue;const x=i%w,y=(i/w)|0;let owner=0,conflict=false;for(let dy=-1;dy<=1&&!conflict;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const near=labels[ny*w+nx];if(!near)continue;if(owner&&owner!==near){conflict=true;break}owner=near}}if(owner&&!conflict)additions[i]=owner}for(let i=0;i<count;i++)if(additions[i])labels[i]=additions[i]}
+ const bounds=Array.from({length:8},()=>({minX:w,minY:h,maxX:0,maxY:0}));
+ for(let i=0;i<count;i++){const owner=labels[i];if(!owner)continue;const x=i%w,y=(i/w)|0,b=bounds[owner-1];b.minX=Math.min(b.minX,x);b.maxX=Math.max(b.maxX,x);b.minY=Math.min(b.minY,y);b.maxY=Math.max(b.maxY,y)}
+ return bounds.map((b,index)=>{const fw=b.maxX-b.minX+1,fh=b.maxY-b.minY+1,fc=document.createElement('canvas');fc.width=fw;fc.height=fh;const fx=fc.getContext('2d'),fd=fx.createImageData(fw,fh);
+ for(let y=b.minY;y<=b.maxY;y++)for(let x=b.minX;x<=b.maxX;x++){const si=y*w+x;if(labels[si]!==index+1)continue;const so=si*4,to=((y-b.minY)*fw+x-b.minX)*4;for(let k=0;k<4;k++)fd.data[to+k]=pixels[so+k]}
+ fx.putImageData(fd,0,0);return{image:fc,width:fw,height:fh,anchorX:fw/2,anchorY:fh}});
+}
+crowdSprites.forEach((im,i)=>{const extract=()=>{crowdFrames[i]=extractPedestrianFrames(im)};im.addEventListener('load',extract,{once:true});if(im.complete&&im.naturalWidth)extract()});
+const pedestrians=Array.from({length:13},(_,i)=>({type:i%5,phase:(i*.247)%1,speed:23+(i%4)*11,near:i%3===0,flip:i%4===1}));
+function drawPedestrians(time,near){
+ const t=time*.001;
+ pedestrians.forEach((p,i)=>{if(p.near!==near)return;const frames=crowdFrames[p.type];if(!frames.length)return;
+ const f=frames[Math.floor(t*(near?7:5)+i*1.3)%frames.length];
+ const s=(height/724)*(near?.78:.51),foot=height*(near?.955:.835),range=width+240;
+ const travel=(t*p.speed+p.phase*range)%range,x=p.flip?width+120-travel:travel-120;
+ ctx.save();ctx.translate(x,0);if(p.flip)ctx.scale(-1,1);
+ const factor=(near?155:105)/Math.max(1,f.height)*s;
+ ctx.drawImage(f.image,-f.anchorX*factor,foot-f.anchorY*factor,f.width*factor,f.height*factor);ctx.restore();
+ });
+}
 function direction(){return((keyboard.has('ArrowRight')||keyboard.has('d')||keyboard.has('D'))?1:0)-((keyboard.has('ArrowLeft')||keyboard.has('a')||keyboard.has('A'))?1:0)||pointerDirection}
 
 function tick(time){const dt=Math.min((time-lastTime)/1000||0,.05);lastTime=time;const dir=direction();const sh=scenes.find(i=>i.naturalHeight)?.naturalHeight||724,scale=height/sh,sw=scenes.map(i=>(i.naturalWidth||2172)*scale),total=sw.reduce((a,b)=>a+b,0),speed=Math.max(165,Math.min(230,height*.24));camera=Math.max(0,Math.min(Math.max(0,total-width),camera+dir*speed*dt));if(dir)walkClock+=dt*10;ctx.fillStyle='#02050b';ctx.fillRect(0,0,width,height);let x=-camera;scenes.forEach((im,i)=>{if(im.complete&&im.naturalWidth)ctx.drawImage(im,x,0,sw[i],height);else{ctx.fillStyle='#080c18';ctx.fillRect(x,0,sw[i],height)}x+=sw[i]});
-if(frames.length){const f=frames[dir?Math.floor(walkClock)%frames.length:1],heroHeight=Math.max(81.648,Math.min(161.595,height*.1828575)),s=heroHeight/390,heroX=Math.min(width*.4,width-74),feetY=height*.845+18;ctx.save();ctx.translate(heroX,0);if(dir<0)ctx.scale(-1,1);ctx.drawImage(f.image,-f.anchorX*s,feetY-f.anchorY*s,f.width*s,f.height*s);ctx.restore()}requestAnimationFrame(tick)}requestAnimationFrame(tick);
+drawPedestrians(time,false);if(frames.length){const f=frames[dir?Math.floor(walkClock)%frames.length:1],heroHeight=Math.max(81.648,Math.min(161.595,height*.1828575)),s=heroHeight/390,heroX=Math.min(width*.4,width-74),feetY=height*.845+18;ctx.save();ctx.translate(heroX,0);if(dir<0)ctx.scale(-1,1);ctx.drawImage(f.image,-f.anchorX*s,feetY-f.anchorY*s,f.width*s,f.height*s);ctx.restore()}drawPedestrians(time,true);requestAnimationFrame(tick)}requestAnimationFrame(tick);
 </script></body></html>
