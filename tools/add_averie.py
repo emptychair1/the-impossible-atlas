@@ -14,12 +14,16 @@ const averieSprite=new Image();
 averieSprite.src='data:image/png;base64,"""+data+"""';
 function drawAverie(t,walking){
  if(!averieSprite.complete||!averieSprite.naturalWidth)return;
- const bob=0; // Fixed shoulder attachment: no independent bobbing.
+ const shoulderX=[-35,-36,-35,-33,-34,-36,-35,-34];
+ const shoulderY=[-190,-192,-190,-189,-191,-192,-190,-189];
+ const phase=walking?frame:0;
+ const footX=x+dir*shoulderX[phase];
+ const footY=ground+shoulderY[phase];
  const w=47,h=51;
  ctx.save();
- ctx.translate(x,ground);
+ ctx.translate(footX,footY);
  ctx.scale(dir,1);
- // Anchor Averie's visible feet just behind Josh's neck, on top of the shoulder.\n ctx.drawImage(averieSprite,-13,-202+bob,w,h);
+ ctx.drawImage(averieSprite,-w*.40,-h*.95,w,h);
  ctx.restore();
 }
 """
