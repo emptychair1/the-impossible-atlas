@@ -2,10 +2,9 @@ from pathlib import Path
 import re
 p=Path("index.html")
 s=p.read_text()
-if "AVERIE_APPROVED_SPRITE_V1" in s:
-    print("Already installed")
-    raise SystemExit(0)
+
 # Remove the earlier placeholder raven function, if present.
+s=re.sub(r"// AVERIE_APPROVED_SPRITE_V1[\s\S]*?\nfunction loop\(t\)\{", "function loop(t){", s, count=1)
 s=re.sub(r"// Averie: animated shoulder-perched raven\.[\s\S]*?\nfunction loop\(t\)\{", "function loop(t){", s, count=1)
 s=s.replace("drawAverie(t,!!move);", "")
 data=Path("assets/averie_perched.b64").read_text().strip()
