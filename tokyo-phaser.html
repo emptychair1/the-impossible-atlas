@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui}#lab{width:100%;height:100%;touch-action:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V27</div><div class="status" id="status">Loading Phaser…</div><div class="controls"><button id="left">◀</button><button id="right">▶</button><label>Bloom <input id="strength" type="range" min="0" max="2" step=".05" value="1"></label></div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
+const ROOT='assets/tokyo-scenes/';
+const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
+let game,world,glows=[],sceneImages=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
+const status=document.getElementById('status');
+function makeEmission(scene,key){
+ const source=scene.textures.get(key).getSourceImage(),w=source.width,h=source.height;
+ const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+ const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(source,0,0);
+ const pixels=c.getImageData(0,0,w,h),d=pixels.data;
+ for(let i=0;i<d.length;i+=4){
+  const r=d[i],g=d[i+1],b=d[i+2],peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b);
+  const lum=.2126*r+.7152*g+.0722*b;
+  const intensity=Math.max((lum-168)/65,(peak-175)/80*Math.min(1,chroma/80));
+  d[i+3]=Math.round(230*Math.max(0,Math.min(1,intensity)));
+ }
+ c.putImageData(pixels,0,0);
+ scene.textures.addCanvas(key+'-emission',canvas);
+}
+class Lab extends Phaser.Scene{
+ constructor(){super('Lab')}
+ preload(){scenes.forEach((path,i)=>this.load.image('scene'+i,path))}
+ create(){
+  this.cameras.main.setBackgroundColor('#02050b');
+  scenes.forEach((_,i)=>{
+   const key='scene'+i;makeEmission(this,key);
+   const original=this.add.image(0,0,key).setOrigin(0);
+   const emission=this.add.image(0,0,key+'-emission').setOrigin(0).setBlendMode(Phaser.BlendModes.ADD);
+   // Phaser's WebGL post-processing bloom keeps the original scene unfiltered and legible.
+   if(emission.postFX&&emission.postFX.addBloom){
+    const bloom=emission.postFX.addBloom(0xffffff,1,1,2,1.1);
+    glows.push({emission,bloom});
+   }else{
+    glows.push({emission,bloom:null});
+    status.textContent='WebGL bloom unavailable: showing emission only';
+   }
+   sceneImages.push({original,emission});
+  });
+  this.scale.on('resize',size=>{viewport={w:size.width,h:size.height}});
+  status.textContent=glows.every(g=>g.bloom)?'Phaser WebGL bloom active · original art preserved':'Phaser running · bloom unavailable';
+ }
+ update(_,dt){
+  const h=this.scale.height,w=this.scale.width;
+  const sizes=sceneImages.map(pair=>pair.original.width*h/pair.original.height);
+  const total=sizes.reduce((a,b)=>a+b,0);
+  travel=Phaser.Math.Clamp(travel+move*dt*.2,0,Math.max(0,total-w));
+  let x=-travel;
+  sceneImages.forEach((pair,i)=>{
+   for(const image of [pair.original,pair.emission])image.setPosition(x,0).setDisplaySize(sizes[i],h);
+   x+=sizes[i];
+  });
+  glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.6*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
+ }
+}
+if(!window.Phaser){status.textContent='Phaser could not load';}
+else{game=new Phaser.Game({type:Phaser.WEBGL,parent:'lab',backgroundColor:'#02050b',scale:{mode:Phaser.Scale.RESIZE,width:innerWidth,height:innerHeight},render:{pixelArt:false,antialias:true},scene:[Lab]});}
+function hold(id,value){const el=document.getElementById(id);el.addEventListener('pointerdown',e=>{move=value;el.setPointerCapture(e.pointerId)});el.addEventListener('pointerup',()=>move=0);el.addEventListener('pointercancel',()=>move=0)}
+hold('left',-1);hold('right',1);
+document.getElementById('strength').addEventListener('input',e=>luminosity=Number(e.target.value));
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')move=1;if(e.key==='ArrowLeft')move=-1});
+addEventListener('keyup',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft')move=0});
+</script></body></html>
