@@ -20,7 +20,7 @@ function drawAverie(t,walking){
  ctx.save();
  ctx.translate(x,ground);
  ctx.scale(dir,1);
- ctx.drawImage(averieSprite,-53,-244+bob,w,h);
+ ctx.drawImage(averieSprite,-30,-188+bob,w,h);
  ctx.restore();
 }
 """
