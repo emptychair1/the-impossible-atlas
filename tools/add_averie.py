@@ -14,7 +14,7 @@ const averieSprite=new Image();
 averieSprite.src='data:image/png;base64,"""+data+"""';
 function drawAverie(t,walking){
  if(!averieSprite.complete||!averieSprite.naturalWidth)return;
- const bob=Math.sin(t*.003)*1.1+(walking?Math.sin(t*.017)*1.5:0);
+ const bob=0; // Fixed shoulder attachment: no independent bobbing.
  const w=47,h=51;
  ctx.save();
  ctx.translate(x,ground);
