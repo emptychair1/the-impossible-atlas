@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V44</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V45</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -47,7 +47,7 @@ const pedestrians=Array.from({length:30},(_,i)=>({type:i%5,phase:(i+crowdRandom(
 let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[],lightFields=[];
 const ROOT='assets/tokyo-scenes/';
 const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
-let game,world,glows=[],sceneImages=[],foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
+let game,world,glows=[],sceneImages=[],atmosphereVeil=null,foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
 const status=document.getElementById('status');
 function makeEmission(scene,key){
  const source=scene.textures.get(key).getSourceImage(),w=source.width,h=source.height;
@@ -229,6 +229,10 @@ class Lab extends Phaser.Scene{
    actor.setAlpha(1);
    crowdActors.push({p,actor,glowStrength:0,glowColor:[0,0,0]});
   });
+  // A single Phaser-native color veil unifies background, sprites and foreground.
+  // It sits above the artwork but accepts no input, preserving all existing interactions.
+  atmosphereVeil=this.add.rectangle(0,0,this.scale.width,this.scale.height,0x081629,.24)
+   .setOrigin(0).setDepth(40);
   // Screen-space rain: distant fine streaks behind people, sparse close drops in front.
   const seeded=(n)=>{const v=Math.sin(n*127.1+53.7)*43758.5453;return v-Math.floor(v)};
   [ {count:105,depth:16,length:7,alpha:.15,speed:360,width:.65},
@@ -247,6 +251,7 @@ class Lab extends Phaser.Scene{
  }
  update(time,dt){
   const h=this.scale.height,w=this.scale.width;
+  if(atmosphereVeil)atmosphereVeil.setSize(w,h);
   rainLayers.forEach(({graphics,drops,layer})=>{
    graphics.clear();graphics.lineStyle(layer.width,0xb2c8db,layer.alpha);
    for(const drop of drops){
@@ -277,7 +282,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V44 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V45 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
@@ -304,14 +309,14 @@ class Lab extends Phaser.Scene{
    const frame=heroFrames[move?Math.floor(walkClock)%heroFrames.length:1];
    const scale=heroHeight/390,heroX=Math.min(w*.4,w-74);
    const px=heroX-frame.anchorX*scale,py=feetY-frame.anchorY*scale;
-   heroActor.setTexture(frame.key).setPosition(px,py)
+   heroActor.setTint(0xb5bfcb).setTexture(frame.key).setPosition(px,py)
     .setDisplaySize(frame.width*scale,frame.height*scale).setFlipX(move<0);
    heroLight.setTexture(frame.key).setPosition(px,py)
     .setDisplaySize(frame.width*scale,frame.height*scale).setFlipX(move<0);
    const sample=sampleNeon(heroX+travel,feetY-heroHeight*.8,sizes,h);
    smoothLight(heroLighting,sample,dt);
    heroLight.setTint(Phaser.Display.Color.GetColor(...heroLighting.color.map(Math.round)))
-    .setAlpha(heroLighting.strength*.7);
+    .setAlpha(heroLighting.strength*.48);
   }
   crowdActors.forEach(entry=>{const {p,actor}=entry;
    const frames=crowdTextures[p.type],f=frames[Math.floor(t*(6.5+p.speed*.025)+p.step)%frames.length];
