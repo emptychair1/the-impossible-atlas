@@ -8,6 +8,25 @@ function size(){const dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.roun
 function button(id){let b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys[id]=true});for(let ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>keys[id]=false)}button('left');button('right');
 addEventListener('keydown',e=>{if(['ArrowLeft','ArrowRight','KeyA','KeyD'].includes(e.code))e.preventDefault();if(e.code==='ArrowLeft'||e.code==='KeyA')keys.left=true;if(e.code==='ArrowRight'||e.code==='KeyD')keys.right=true});addEventListener('keyup',e=>{if(e.code==='ArrowLeft'||e.code==='KeyA')keys.left=false;if(e.code==='ArrowRight'||e.code==='KeyD')keys.right=false});addEventListener('blur',()=>{keys.left=keys.right=false});
 let rain=[];for(let i=0;i<125;i++)rain.push({x:Math.random()*W,y:Math.random()*H,s:6+Math.random()*12,v:150+Math.random()*200});
+
+// Averie: animated shoulder-perched raven.
+function drawAverie(time,walking){
+  const bob=Math.sin(time*.004)*1.5+(walking?Math.sin(time*.017)*2:0);
+  const blink=(time%4100)<105;
+  const turn=Math.sin(time*.0017)>.72;
+  const wing=Math.sin(time*.0031)*1.4;
+  ctx.save();
+  ctx.translate(x+dir*(-39),ground-214+bob);ctx.scale(dir,1);
+  ctx.fillStyle='#080b15';ctx.strokeStyle='#1c2633';ctx.lineWidth=1.7;
+  ctx.beginPath();ctx.moveTo(-6,16);ctx.lineTo(-24,36);ctx.lineTo(-12,30);ctx.lineTo(-19,39);ctx.lineTo(2,23);ctx.fill();
+  ctx.beginPath();ctx.ellipse(0,9,15,22,-.25,0,Math.PI*2);ctx.fill();ctx.stroke();
+  ctx.fillStyle='#141c2a';ctx.beginPath();ctx.ellipse(-5+wing,14,9,17,-.3,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#080b15';ctx.beginPath();ctx.ellipse(6,-14,11,12,turn?-.2:.16,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(13,-16);ctx.lineTo(26,-12);ctx.lineTo(13,-10);ctx.closePath();ctx.fill();
+  ctx.fillStyle=blink?'#171b24':'#c1c5b6';ctx.beginPath();ctx.ellipse(10,-17,blink?2:2.4,blink?.5:2,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#080b15';ctx.fillRect(-6,25,2,6);ctx.fillRect(3,25,2,6);
+  ctx.restore();
+}
 function loop(t){const dt=Math.min((t-last)/1000||0,.05);last=t;move=(keys.right?1:0)-(keys.left?1:0);if(move){dir=move;x=Math.max(55,Math.min(W-60,x+move*235*dt));frameTimer+=dt;if(frameTimer>.105){frame=(frame+1)%8;frameTimer=0}}else{frame=0;frameTimer=0}
 ctx.clearRect(0,0,canvas.width,canvas.height);// Fill the viewport without letterboxing. In portrait, follow Josh horizontally.
 const scale=Math.max(canvas.width/W,canvas.height/H);
@@ -18,5 +37,5 @@ if(background.complete&&background.naturalWidth)ctx.drawImage(background,0,0,W,H
 ctx.save();ctx.strokeStyle='rgba(185,210,242,.19)';ctx.lineWidth=1;for(const r of rain){r.y+=r.v*dt;if(r.y>H){r.y=-20;r.x=Math.random()*W}ctx.beginPath();ctx.moveTo(r.x,r.y);ctx.lineTo(r.x-2,r.y+r.s);ctx.stroke()}ctx.restore();
 // sprite source 384 x 390, normalized foot at y=375. At scale .58 boots meet pavement.
 if(sprite.complete&&sprite.naturalWidth){const k=.66,sw=384*k,sh=390*k;ctx.save();ctx.translate(x,ground);ctx.scale(dir,1);ctx.drawImage(sprite,frame*384,0,384,390,-sw/2,-375*k,sw,sh);ctx.restore()}
-ctx.restore();requestAnimationFrame(loop)}requestAnimationFrame(loop);
+drawAverie(t,!!move);ctx.restore();requestAnimationFrame(loop)}requestAnimationFrame(loop);
 </script></body></html>
