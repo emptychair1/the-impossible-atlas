@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V43</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V44</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -47,7 +47,7 @@ const pedestrians=Array.from({length:30},(_,i)=>({type:i%5,phase:(i+crowdRandom(
 let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[],lightFields=[];
 const ROOT='assets/tokyo-scenes/';
 const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
-let game,world,glows=[],sceneImages=[],flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
+let game,world,glows=[],sceneImages=[],foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
 const status=document.getElementById('status');
 function makeEmission(scene,key){
  const source=scene.textures.get(key).getSourceImage(),w=source.width,h=source.height;
@@ -118,6 +118,21 @@ class Lab extends Phaser.Scene{
     status.textContent='WebGL bloom unavailable: showing emission only';
    }
    sceneImages.push({original,emission});
+   if(i===1){
+    // Car silhouette traced from the supplied full Tokyo image (1536 x 512).
+    // Geometry mask reveals ONLY the existing painted car, never a rectangular patch.
+    const car=this.add.image(0,0,key).setOrigin(0).setDepth(25);
+    const maskShape=this.make.graphics({x:0,y:0},false);
+    maskShape.fillStyle(0xffffff,1);
+    const outline=[
+      [1360,438],[1370,417],[1390,400],[1410,385],[1441,376],
+      [1460,370],[1500,371],[1536,379],[1536,495],
+      [1381,495],[1367,486],[1360,464]
+    ];
+    maskShape.fillPoints(outline.map(p=>new Phaser.Geom.Point(p[0],p[1])),true);
+    car.setMask(maskShape.createGeometryMask());
+    foregroundCar={car,maskShape,outline};
+   }
    // Phaser-native cropped Image strips and Tweens. Only existing pavement pixels
    // are reused, with no generated reflection art or custom rendering pipeline.
    // Locate distinct, saturated light reflections in the actual lower artwork.
@@ -249,6 +264,12 @@ class Lab extends Phaser.Scene{
    for(const image of [pair.original,pair.emission])image.setPosition(x,0).setDisplaySize(sizes[i],h);
    x+=sizes[i];
   });
+  if(foregroundCar){
+   const sceneIndex=1,left=sizes[0]-travel,width=sizes[1];
+   foregroundCar.car.setPosition(left,0).setDisplaySize(width,h);
+   // Graphics geometry mask shares the scene's scaling and scrolling.
+   foregroundCar.maskShape.setPosition(left,0).setScale(width/1536,h/512);
+  }
   reflectionBands.forEach(({strip,sceneIndex,x,y,w:rw,h:rh,j})=>{
    const left=sizes.slice(0,sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const drift=Math.sin(time*.0012+j*2.3+sceneIndex)*2.7;
@@ -256,7 +277,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V43 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V44 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
