@@ -19,7 +19,7 @@ function drawAverie(t,walking){
  ctx.save();
  ctx.translate(x,ground);
  ctx.scale(dir,1);
- // Anchor Averie's visible feet just behind Josh's neck, on top of the shoulder.\n ctx.drawImage(averieSprite,-9,-220+bob,w,h);
+ // Anchor Averie's visible feet just behind Josh's neck, on top of the shoulder.\n ctx.drawImage(averieSprite,1,-210+bob,w,h);
  ctx.restore();
 }
 """
