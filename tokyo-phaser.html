@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V37</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V38</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -121,30 +121,29 @@ class Lab extends Phaser.Scene{
    // A few independent neon fixtures, anchored to actual saturated emissive pixels.
    // Their source art remains untouched; only the bloom contribution fluctuates.
    const pixels=fg.getImageData(0,0,field.width,field.height).data;
-   const candidates=[];
-   for(let y=8;y<field.height*.72;y+=3)for(let x=8;x<field.width-8;x+=3){
-    const k=(y*field.width+x)*4,r=pixels[k],g=pixels[k+1],b=pixels[k+2];
-    const peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b);
-    if(peak>170&&chroma>75)candidates.push({x,y,score:peak+chroma});
+   // Only one small bulb in the entire city is unreliable.
+   if(i===0){
+    const candidates=[];
+    for(let y=10;y<field.height*.65;y+=2)for(let x=10;x<field.width-10;x+=2){
+     const k=(y*field.width+x)*4,r=pixels[k],g=pixels[k+1],b=pixels[k+2];
+     const peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b);
+     if(peak>185&&chroma>95)candidates.push({x,y,score:peak+chroma});
+    }
+    candidates.sort((a,b)=>b.score-a.score);
+    if(candidates.length){
+     const c=candidates[0],radius=3;
+     const clip=document.createElement('canvas');clip.width=radius*2;clip.height=radius*2;
+     const cg=clip.getContext('2d');
+     const source=this.textures.get(key+'-emission').getSourceImage();
+     const sx=c.x/field.width*src.width,sy=c.y/field.height*src.height;
+     const sw=radius*2/field.width*src.width,sh=radius*2/field.height*src.height;
+     cg.drawImage(source,sx-sw/2,sy-sh/2,sw,sh,0,0,clip.width,clip.height);
+     const tex='single-flicker-bulb';this.textures.addCanvas(tex,clip);
+     const lamp=this.add.image(0,0,tex).setOrigin(.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(3);
+     if(lamp.postFX?.addBloom)lamp.postFX.addBloom(0xffffff,1,1,2,.65);
+     flickerLights.push({lamp,sceneIndex:i,x:c.x/field.width,y:c.y/field.height,radius});
+    }
    }
-   candidates.sort((a,b)=>b.score-a.score);
-   const selected=[];
-   for(const c of candidates){
-    if(selected.every(s=>Math.hypot(c.x-s.x,c.y-s.y)>24)){selected.push(c);if(selected.length===3)break}
-   }
-   selected.forEach((c,j)=>{
-    const radius=18,clip=document.createElement('canvas');clip.width=radius*2;clip.height=radius*2;
-    const cg=clip.getContext('2d');
-    cg.drawImage(this.textures.get(key+'-emission').getSourceImage(),
-     Math.max(0,(c.x-radius)/field.width*src.width),Math.max(0,(c.y-radius)/field.height*src.height),
-     Math.min(src.width,(radius*2)/field.width*src.width),Math.min(src.height,(radius*2)/field.height*src.height),
-     0,0,clip.width,clip.height);
-    const tex='flicker-'+i+'-'+j;this.textures.addCanvas(tex,clip);
-    const lamp=this.add.image(0,0,tex).setOrigin(0).setBlendMode(Phaser.BlendModes.ADD).setDepth(3);
-    if(lamp.postFX?.addBloom)lamp.postFX.addBloom(0xffffff,1,1,2,1.7);
-    flickerLights.push({lamp,sceneIndex:i,x:c.x/field.width,y:c.y/field.height,
-      radius,phase:i*4.7+j*2.3,frequency:.7+j*.32});
-   });
   });
   CROWD_PATHS.forEach((_,i)=>{
    const source=this.textures.get('crowd'+i).getSourceImage();
@@ -179,15 +178,13 @@ class Lab extends Phaser.Scene{
    x+=sizes[i];
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Irregular but deterministic flicker with occasional brief sputters, never a full-screen flash.
-  let fixtureOffset=0;
+  // One isolated bulb, with long steady intervals and rare brief faults.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
-   const t=time*.001*f.frequency+f.phase;
-   const pulse=Math.sin(t*11)*.13+Math.sin(t*23.7)*.09;
-   const sputter=Math.sin(t*2.13)> .93 ? .23 : 0;
-   const intensity=Math.max(.08,Math.min(.95,.56+pulse-sputter));
-   f.lamp.setPosition(left+(f.x-f.radius/180)*span,(f.y-f.radius/(lightFields[f.sceneIndex].height))*h)
+   const t=time*.001,cycle=t%19.7;
+   const fault=cycle>14.2&&cycle<14.65;
+   const intensity=fault?(Math.sin((cycle-14.2)*87)>0?.06:.52):.42;
+   f.lamp.setPosition(left+f.x*span,f.y*h)
     .setDisplaySize(f.radius*2/180*span,f.radius*2/lightFields[f.sceneIndex].height*h)
     .setAlpha(intensity*luminosity);
   });
