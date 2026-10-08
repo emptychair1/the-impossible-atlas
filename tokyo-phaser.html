@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V42</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V43</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -120,18 +120,49 @@ class Lab extends Phaser.Scene{
    sceneImages.push({original,emission});
    // Phaser-native cropped Image strips and Tweens. Only existing pavement pixels
    // are reused, with no generated reflection art or custom rendering pipeline.
-   for(let band=0;band<5;band++){
-    const y0=.75+band*.045,y1=Math.min(.985,y0+.047);
-    const cropY=Math.round(src.height*y0),cropH=Math.max(1,Math.round(src.height*(y1-y0)));
-    // A Phaser texture frame has the correct dimensions, unlike a cropped full-size Image.
-    const frameName='pavement-reflection-'+i+'-'+band;
-    this.textures.get(key).add(frameName,0,0,cropY,src.width,cropH);
-    const strip=this.add.image(0,0,key,frameName).setOrigin(0).setDepth(2)
-      .setAlpha(.29).setBlendMode(Phaser.BlendModes.ADD);
-    reflectionBands.push({strip,sceneIndex:i,y0,y1,band});
-    this.tweens.add({targets:strip,alpha:{from:.19,to:.37},
-      duration:1700+band*370+i*230,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
-   }
+   // Locate distinct, saturated light reflections in the actual lower artwork.
+   // Each Phaser Image is a small masked reflection, not a full-width pavement strip.
+   const reflectCanvas=document.createElement('canvas');
+   reflectCanvas.width=180;reflectCanvas.height=field.height;
+   const rc=reflectCanvas.getContext('2d',{willReadFrequently:true});
+   rc.drawImage(src,0,0,180,field.height);
+   const data=rc.getImageData(0,0,180,field.height).data;
+   const spots=[];
+   for(let y=Math.floor(field.height*.74);y<field.height*.97;y+=3)
+    for(let x=8;x<172;x+=3){
+     const k=(y*180+x)*4,r=data[k],g=data[k+1],b=data[k+2];
+     const high=Math.max(r,g,b),low=Math.min(r,g,b);
+     if(high<108||high-low<44)continue;
+     const score=(high-low)*(high/255);
+     if(spots.every(s=>Math.hypot((s.x-x)*.7,(s.y-y)*1.8)>18))
+      spots.push({x,y,score});
+    }
+   spots.sort((a,b)=>b.score-a.score);
+   spots.slice(0,5).forEach((spot,j)=>{
+    const radiusX=11,radiusY=7;
+    const sx=Math.max(0,Math.round((spot.x-radiusX)/180*src.width));
+    const sy=Math.max(0,Math.round((spot.y-radiusY)/field.height*src.height));
+    const sw=Math.min(src.width-sx,Math.round(radiusX*2/180*src.width));
+    const sh=Math.min(src.height-sy,Math.round(radiusY*2/field.height*src.height));
+    if(sw<2||sh<2)return;
+    const texture='reflection-patch-'+i+'-'+j;
+    const canvas=document.createElement('canvas');canvas.width=sw;canvas.height=sh;
+    const ctx=canvas.getContext('2d');ctx.drawImage(src,sx,sy,sw,sh,0,0,sw,sh);
+    const pixels=ctx.getImageData(0,0,sw,sh);
+    for(let p=0;p<pixels.data.length;p+=4){
+     const r=pixels.data[p],g=pixels.data[p+1],b=pixels.data[p+2];
+     const hi=Math.max(r,g,b),lo=Math.min(r,g,b);
+     const px=(p/4)%sw,py=Math.floor((p/4)/sw);
+     const ellipse=Math.max(0,1-Math.pow((px-sw/2)/(sw*.5),2)-Math.pow((py-sh/2)/(sh*.5),2));
+     pixels.data[p+3]=Math.round(Math.min(180,Math.max(0,(hi-lo-22)*2))*Math.sqrt(ellipse));
+    }
+    ctx.putImageData(pixels,0,0);
+    this.textures.addCanvas(texture,canvas);
+    const sprite=this.add.image(0,0,texture).setOrigin(0).setDepth(2).setBlendMode(Phaser.BlendModes.ADD);
+    reflectionBands.push({strip:sprite,sceneIndex:i,x:sx/src.width,y:sy/src.height,w:sw/src.width,h:sh/src.height,j});
+    this.tweens.add({targets:sprite,alpha:{from:.26,to:.65},duration:1100+j*470+i*230,
+     yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+   });
    // A few independent neon fixtures, anchored to actual saturated emissive pixels.
    // Their source art remains untouched; only the bloom contribution fluctuates.
    const pixels=fg.getImageData(0,0,field.width,field.height).data;
@@ -218,15 +249,14 @@ class Lab extends Phaser.Scene{
    for(const image of [pair.original,pair.emission])image.setPosition(x,0).setDisplaySize(sizes[i],h);
    x+=sizes[i];
   });
-  reflectionBands.forEach(({strip,sceneIndex,y0,y1,band})=>{
+  reflectionBands.forEach(({strip,sceneIndex,x,y,w:rw,h:rh,j})=>{
    const left=sizes.slice(0,sceneIndex).reduce((a,b)=>a+b,0)-travel;
-   const width=sizes[sceneIndex];
-   // Subpixel lateral shimmer, each narrow pavement band moving independently.
-   const drift=Math.sin(time*.00105+sceneIndex*2.1+band*1.8)*4.5;
-   strip.setPosition(left+drift,y0*h).setDisplaySize(width,(y1-y0)*h);
+   const drift=Math.sin(time*.0012+j*2.3+sceneIndex)*2.7;
+   strip.setPosition(left+x*sizes[sceneIndex]+drift,y*h)
+    .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V42 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V43 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
