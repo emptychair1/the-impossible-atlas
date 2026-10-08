@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui}#lab{width:100%;height:100%;touch-action:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V34</div><div class="status" id="status">Loading Phaser…</div><div class="controls"><button id="left">◀</button><button id="right">▶</button><label>Bloom <input id="strength" type="range" min="0" max="2" step=".05" value="1"></label></div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V35</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
 function extractSpriteFrames(image){
@@ -187,9 +187,18 @@ class Lab extends Phaser.Scene{
 }
 if(!window.Phaser){status.textContent='Phaser could not load';}
 else{game=new Phaser.Game({type:Phaser.WEBGL,parent:'lab',backgroundColor:'#02050b',scale:{mode:Phaser.Scale.RESIZE,width:innerWidth,height:innerHeight},render:{pixelArt:false,antialias:true},scene:[Lab]});}
-function hold(id,value){const el=document.getElementById(id);el.addEventListener('pointerdown',e=>{move=value;el.setPointerCapture(e.pointerId)});el.addEventListener('pointerup',()=>move=0);el.addEventListener('pointercancel',()=>move=0)}
-hold('left',-1);hold('right',1);
-document.getElementById('strength').addEventListener('input',e=>luminosity=Number(e.target.value));
+// Invisible full-screen hold-to-walk controls: left half walks left, right half walks right.
+const surface=document.getElementById('lab');
+surface.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ e.preventDefault();move=e.clientX<innerWidth/2?-1:1;
+ try{surface.setPointerCapture(e.pointerId)}catch{}
+},{passive:false});
+for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
+ surface.addEventListener(eventName,()=>{move=0});
+for(const eventName of ['contextmenu','selectstart','dragstart'])
+ document.addEventListener(eventName,e=>e.preventDefault());
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')move=1;if(e.key==='ArrowLeft')move=-1});
 addEventListener('keyup',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft')move=0});
 </script></body></html>
