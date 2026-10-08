@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui}#lab{width:100%;height:100%;touch-action:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V28</div><div class="status" id="status">Loading Phaser…</div><div class="controls"><button id="left">◀</button><button id="right">▶</button><label>Bloom <input id="strength" type="range" min="0" max="2" step=".05" value="1"></label></div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui}#lab{width:100%;height:100%;touch-action:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b}</style></head><body><div id="lab"></div><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V29</div><div class="status" id="status">Loading Phaser…</div><div class="controls"><button id="left">◀</button><button id="right">▶</button><label>Bloom <input id="strength" type="range" min="0" max="2" step=".05" value="1"></label></div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const CROWD_PATHS=["assets/umbrella-commuter.png","assets/phone-walker.png","assets/briefcase-commuter.png","assets/umbrella-couple.png","assets/umbrella-woman.png"];
 function extractPedestrianFrames(image){
@@ -32,7 +32,7 @@ function extractPedestrianFrames(image){
 
 const crowdRandom=n=>{const x=Math.sin(n*127.1+78.233)*43758.5453;return x-Math.floor(x)};
 const pedestrians=Array.from({length:30},(_,i)=>({type:i%5,phase:(i+crowdRandom(i+31)*.72)/30,speed:19+crowdRandom(i+71)*24,step:crowdRandom(i+111)*8,flip:i%5===4}));
-let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[];
+let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[],lightFields=[];
 const ROOT='assets/tokyo-scenes/';
 const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
 let game,world,glows=[],sceneImages=[],travel=0,move=0,luminosity=1,viewport={w:innerWidth,h:innerHeight};
@@ -58,6 +58,11 @@ class Lab extends Phaser.Scene{
   this.cameras.main.setBackgroundColor('#02050b');
   scenes.forEach((_,i)=>{
    const key='scene'+i;makeEmission(this,key);
+   // Precompute a compact emissive color field once, never read pixels during rendering.
+   const src=this.textures.get(key).getSourceImage(),field=document.createElement('canvas');
+   field.width=180;field.height=Math.round(180*src.height/src.width);
+   const fg=field.getContext('2d',{willReadFrequently:true});fg.drawImage(src,0,0,field.width,field.height);
+   lightFields.push({width:field.width,height:field.height,data:fg.getImageData(0,0,field.width,field.height).data});
    const original=this.add.image(0,0,key).setOrigin(0);
    const emission=this.add.image(0,0,key+'-emission').setOrigin(0).setBlendMode(Phaser.BlendModes.ADD);
    // Phaser's WebGL post-processing bloom keeps the original scene unfiltered and legible.
@@ -79,7 +84,8 @@ class Lab extends Phaser.Scene{
    const f=crowdTextures[p.type][0];if(!f)return;
    const actor=this.add.image(0,0,f.key).setOrigin(0,0).setDepth(20);
    if(p.type===3||p.type===4)actor.setTint(0x808080);
-   crowdActors.push({p,actor});
+   const light=this.add.image(0,0,f.key).setOrigin(0,0).setDepth(21).setBlendMode(Phaser.BlendModes.ADD).setAlpha(0);
+   crowdActors.push({p,actor,light});
   });
   this.scale.on('resize',size=>{viewport={w:size.width,h:size.height}});
   status.textContent=glows.every(g=>g.bloom)?'Phaser WebGL bloom active · original art preserved':'Phaser running · bloom unavailable';
@@ -96,11 +102,32 @@ class Lab extends Phaser.Scene{
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.6*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
   const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575)),feetY=h*.845+18,t=time*.001;
-  crowdActors.forEach(({p,actor})=>{
+  crowdActors.forEach(({p,actor,light})=>{
    const frames=crowdTextures[p.type],f=frames[Math.floor(t*(6.5+p.speed*.025)+p.step)%frames.length];
    const range=w+heroHeight*2,worldTravel=t*p.speed+p.phase*range+(p.flip?travel:-travel),progress=((worldTravel%range)+range)%range;
    const x=p.flip?w+heroHeight-progress:progress-heroHeight,scale=heroHeight*1.15/Math.max(1,f.height);
-   actor.setTexture(f.key).setPosition(x-f.anchorX*scale,feetY-f.anchorY*scale).setDisplaySize(f.width*scale,f.height*scale);
+   const px=x-f.anchorX*scale,py=feetY-f.anchorY*scale;
+   actor.setTexture(f.key).setPosition(px,py).setDisplaySize(f.width*scale,f.height*scale);
+   light.setTexture(f.key).setPosition(px,py).setDisplaySize(f.width*scale,f.height*scale);
+   // Sample luminous architecture near the walker's upper body, with a broad falloff.
+   const worldX=x+travel;let offset=0,fieldIndex=-1;
+   for(let i=0;i<sizes.length;i++){if(worldX>=offset&&worldX<offset+sizes[i]){fieldIndex=i;break}offset+=sizes[i]}
+   if(fieldIndex<0){light.setAlpha(0);return}
+   const field=lightFields[fieldIndex],cx=Math.round((worldX-offset)/sizes[fieldIndex]*(field.width-1));
+   const cy=Math.round((feetY-heroHeight*.8)/h*(field.height-1));
+   let rr=0,gg=0,bb=0,weight=0;
+   for(let dy=-8;dy<=8;dy+=2)for(let dx=-9;dx<=9;dx+=2){
+    const xx=cx+dx,yy=cy+dy;if(xx<0||yy<0||xx>=field.width||yy>=field.height)continue;
+    const k=(yy*field.width+xx)*4,r=field.data[k],g=field.data[k+1],b=field.data[k+2];
+    const peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b),lum=.2126*r+.7152*g+.0722*b;
+    const bright=Math.max(0,Math.min(1,Math.max((lum-135)/95,(peak-150)/95*Math.min(1,chroma/65))));
+    const falloff=1/(1+(dx*dx+dy*dy)/40),v=bright*falloff;
+    rr+=r*v;gg+=g*v;bb+=b*v;weight+=v;
+   }
+   const intensity=Math.min(.65,weight*.085)*luminosity;
+   light.setTint(Phaser.Display.Color.GetColor(
+    Math.round(weight?rr/weight:0),Math.round(weight?gg/weight:0),Math.round(weight?bb/weight:0)
+   )).setAlpha(Math.min(.85,intensity));
   });
  }
 }
