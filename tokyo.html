@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>The Impossible Atlas · Tokyo</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;background:#02050b;color:#fff;font-family:system-ui}canvas{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.hint{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);left:0;right:0;text-align:center;font-size:12px;letter-spacing:.16em;color:#f4e3b3;text-shadow:0 2px 8px #000;pointer-events:none;opacity:.8}.version{position:fixed;right:9px;bottom:calc(env(safe-area-inset-bottom) + 7px);font:10px system-ui;color:rgba(255,255,255,.48);pointer-events:none;z-index:2}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:14px;font-size:10px;letter-spacing:.15em;color:#fff9;text-shadow:0 2px 6px #000;pointer-events:none}</style></head><body><canvas id="game"></canvas><div class="badge">THE IMPOSSIBLE ATLAS · TOKYO</div><div class="hint">HOLD RIGHT OR LEFT TO WALK · ← →</div><div class="version">V20</div><script>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>The Impossible Atlas · Tokyo</title><style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;background:#02050b;color:#fff;font-family:system-ui}canvas{position:fixed;inset:0;display:block;width:100%;height:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}.hint{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 14px);left:0;right:0;text-align:center;font-size:12px;letter-spacing:.16em;color:#f4e3b3;text-shadow:0 2px 8px #000;pointer-events:none;opacity:.8}.version{position:fixed;right:9px;bottom:calc(env(safe-area-inset-bottom) + 7px);font:10px system-ui;color:rgba(255,255,255,.48);pointer-events:none;z-index:2}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 12px);left:14px;font-size:10px;letter-spacing:.15em;color:#fff9;text-shadow:0 2px 6px #000;pointer-events:none}</style></head><body><canvas id="game"></canvas><div class="badge">THE IMPOSSIBLE ATLAS · TOKYO</div><div class="hint">HOLD RIGHT OR LEFT TO WALK · ← →</div><div class="version">V21</div><script>
 const ROOT='assets/tokyo-scenes/';const SCENE_PATHS=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];const SPRITE_PATH=ROOT+'9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';const canvas=document.getElementById('game'),ctx=canvas.getContext('2d',{alpha:false});function load(src){const im=new Image();im.src=src;return im}const scenes=SCENE_PATHS.map(load),sprite=load(SPRITE_PATH);let width=0,height=0,dpr=1,camera=0,walkClock=0,lastTime=0,frames=[],pointerDirection=0;const keyboard=new Set();const CROWD_PATHS=["assets/umbrella-commuter.png","assets/phone-walker.png","assets/briefcase-commuter.png","assets/umbrella-couple.png","assets/umbrella-woman.png"];const crowdSprites=CROWD_PATHS.map(load),crowdFrames=crowdSprites.map(()=>[]);
 function resize(){const v=window.visualViewport;width=Math.round(v?v.width:innerWidth);height=Math.round(v?v.height:innerHeight);dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(width*dpr);canvas.height=Math.round(height*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high'}addEventListener('resize',resize);if(window.visualViewport)visualViewport.addEventListener('resize',resize);resize();
 addEventListener('keydown',e=>{if(['ArrowRight','ArrowLeft','a','d','A','D'].includes(e.key)){e.preventDefault();keyboard.add(e.key)}});addEventListener('keyup',e=>keyboard.delete(e.key));canvas.addEventListener('contextmenu',e=>e.preventDefault());canvas.addEventListener('selectstart',e=>e.preventDefault());canvas.addEventListener('dragstart',e=>e.preventDefault());canvas.addEventListener('pointerdown',e=>{pointerDirection=e.clientX<width/2?-1:1;try{canvas.setPointerCapture(e.pointerId)}catch{}});canvas.addEventListener('pointerup',()=>pointerDirection=0);canvas.addEventListener('pointercancel',()=>pointerDirection=0);
@@ -64,8 +64,34 @@ function direction(){return((keyboard.has('ArrowRight')||keyboard.has('d')||keyb
 const ATMOSPHERE={color:'8,24,49',opacity:0.38};
 function drawAtmosphere(){ctx.save();ctx.fillStyle=`rgba(${ATMOSPHERE.color},${ATMOSPHERE.opacity})`;ctx.fillRect(0,0,width,height);ctx.restore()}
 // V20: one world-anchored warm lighting audition. Values are deliberately adjustable.
-const STREETLIGHT={worldX:850,radius:235,strength:.38,color:'255,181,99'};
+const STREETLIGHT={worldX:850,radius:235,strength:.38,color:'255,181,99',anchored:false};
+// Locate a real bright architectural feature in the first background image,
+// rather than assuming the original audition coordinate is a lamp.
+function anchorStreetlight(){
+ const im=scenes[0];if(!im.complete||!im.naturalWidth||!width||!height)return;
+ const sample=document.createElement('canvas');sample.width=180;sample.height=90;
+ const s=sample.getContext('2d',{willReadFrequently:true});s.drawImage(im,0,0,180,90);
+ const data=s.getImageData(0,0,180,90).data;
+ const worldScale=height/im.naturalHeight;
+ const target=850/(im.naturalWidth*worldScale)*180;
+ let best=-Infinity,bx=-1,by=-1;
+ for(let y=17;y<58;y+=2)for(let x=10;x<170;x+=2){
+  let bright=0;
+  for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+   const ix=x+dx,iy=y+dy;if(ix<0||ix>=180||iy<0||iy>=90)continue;
+   const k=(iy*180+ix)*4,r=data[k],g=data[k+1],b=data[k+2];
+   const lum=.2126*r+.7152*g+.0722*b;
+   if(lum>145)bright+=(lum-145)/110;
+  }
+  const score=bright-Math.abs(x-target)*.10;
+  if(score>best){best=score;bx=x;by=y}
+ }
+ if(best>5){STREETLIGHT.worldX=bx/180*im.naturalWidth*worldScale;STREETLIGHT.anchored=true}
+ else console.warn('V21: no reliable bright feature found; retaining approved V20 light position');
+}
+
 function drawStreetlight(){
+ if(!STREETLIGHT.anchored&&scenes[0].complete&&scenes[0].naturalWidth)anchorStreetlight();
  const x=STREETLIGHT.worldX-camera;
  if(x < -STREETLIGHT.radius || x > width+STREETLIGHT.radius)return;
  const y=height*.79,r=STREETLIGHT.radius;
