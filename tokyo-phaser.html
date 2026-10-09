@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V72</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V74</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const music=document.getElementById('tokyoMusic');
 const musicToggle=document.getElementById('musicToggle');
@@ -74,7 +74,7 @@ function extractEntranceFrames(scene,img){
  const alpha=(x,y)=>data[(y*w+x)*4+3];
  let opaque=0,transparent=0;
  for(let y=0;y<h;y+=11)for(let x=0;x<w;x+=11){const a=alpha(x,y);if(a<10)transparent++;else if(a>245)opaque++}
- if(transparent<opaque*.03){console.error('V72: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
+ if(transparent<opaque*.03){console.error('V74: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
  // Find actual row bands from the alpha silhouette, not from equal thirds.
  const rowOccupied=new Uint8Array(h);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(alpha(x,y)>32){rowOccupied[y]=1;break}
@@ -82,7 +82,7 @@ function extractEntranceFrames(scene,img){
  for(let y=0;y<=h;y++){const on=y<h&&rowOccupied[y];if(on&&start<0)start=y;if(!on&&start>=0){bands.push([start,y]);start=-1}}
  // Minor disconnected flecks must not create extra rows.
  const substantial=bands.filter(([s,e])=>e-s>=h*.065);
- if(substantial.length!==3){console.error('V72: Expected 3 separate alpha rows, found',substantial.length);return null}
+ if(substantial.length!==3){console.error('V74: Expected 3 separate alpha rows, found',substantial.length);return null}
  const specs=[['turn',8],['stairs',8],['crouch',6]],out={turn:[],stairs:[],crouch:[]};
  for(let r=0;r<3;r++){
   const [name,count]=specs[r],[top,bottom]=substantial[r];
@@ -92,12 +92,12 @@ function extractEntranceFrames(scene,img){
   for(let x=0;x<=w;x++){const on=x<w&&colOccupied[x];if(on&&left<0)left=x;if(!on&&left>=0){runs.push([left,x]);left=-1}}
   // Merge tiny gaps inside a character; keep the larger gutters between poses.
   const gutters=[];for(let i=0;i<runs.length-1;i++)gutters.push({i,gap:runs[i+1][0]-runs[i][1]});
-  if(runs.length<count){console.error('V72: Not enough isolated poses in',name,runs.length);return null}
+  if(runs.length<count){console.error('V74: Not enough isolated poses in',name,runs.length);return null}
   const separators=gutters.sort((a,b)=>b.gap-a.gap).slice(0,count-1).map(g=>g.i).sort((a,b)=>a-b);
   const groups=[];let from=0;
   for(const sep of separators){groups.push([runs[from][0],runs[sep][1]]);from=sep+1}
   groups.push([runs[from][0],runs[runs.length-1][1]]);
-  if(groups.length!==count){console.error('V72: Invalid frame groups for',name);return null}
+  if(groups.length!==count){console.error('V74: Invalid frame groups for',name);return null}
   for(let i=0;i<count;i++){
    const [x0,x1]=groups[i];let minX=x1,minY=bottom,maxX=x0-1,maxY=top-1;
    for(let y=top;y<bottom;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>32){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
@@ -109,7 +109,7 @@ function extractEntranceFrames(scene,img){
    out[name].push({key,width:fw,height:fh,anchorX:fw/2,anchorY:fh});
   }
  }
- console.info('V72 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
+ console.info('V74 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
  return out;
 }
 
@@ -197,13 +197,17 @@ function smoothLight(target,sample,dt){
 }
 class Lab extends Phaser.Scene{
  constructor(){super('Lab')}
- preload(){scenes.forEach((path,i)=>this.load.image('scene'+i,path));CROWD_PATHS.forEach((path,i)=>this.load.image('crowd'+i,path));this.load.image('hero-sheet',HERO_PATH);this.load.image('entrance-sheet',ENTRANCE_PATH);this.load.image('turn-sheet',TURN_PATH);this.load.image('lobby-entrance','assets/1DBFC2B9-FDE9-4894-B6C4-A1DA1B3E9CF0.png');this.load.image('lobby-interior','assets/EB075523-9CB5-463D-8F93-6EE40BCD9E69.png');this.load.image('elevator-approach','assets/E46151EC-FB9E-4250-A088-A2A5D3D238F6.png');this.load.image('elevator-button-shot','assets/DCBF27F8-AB29-4A67-92E1-6CECD794CC17.png')}
+ preload(){scenes.forEach((path,i)=>this.load.image('scene'+i,path));CROWD_PATHS.forEach((path,i)=>this.load.image('crowd'+i,path));this.load.image('hero-sheet',HERO_PATH);this.load.image('entrance-sheet',ENTRANCE_PATH);this.load.image('turn-sheet',TURN_PATH);this.load.image('lobby-entrance','assets/1DBFC2B9-FDE9-4894-B6C4-A1DA1B3E9CF0.png');this.load.image('lobby-interior','assets/EB075523-9CB5-463D-8F93-6EE40BCD9E69.png');this.load.image('elevator-approach','assets/E46151EC-FB9E-4250-A088-A2A5D3D238F6.png');this.load.image('elevator-button-shot','assets/DCBF27F8-AB29-4A67-92E1-6CECD794CC17.png');this.load.image('cubicle-floor','assets/0AFADAED-2838-4C66-9E5C-879B3C1CF942.png')}
  create(){
   this.cameras.main.setBackgroundColor('#02050b');
   this.lobbyTransition=null;
   this.elevatorShot=this.add.image(this.scale.width/2,this.scale.height/2,'elevator-approach').setOrigin(.5).setDepth(215).setAlpha(0).setVisible(false);
   this.elevatorWalker=null;
   this.buttonShot=this.add.image(this.scale.width/2,this.scale.height/2,'elevator-button-shot').setOrigin(.5).setDepth(230).setVisible(false).setAlpha(0);
+  this.cubicleShot=this.add.image(0,0,'cubicle-floor').setOrigin(.5).setDepth(241).setVisible(false);
+  this.blackFade=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(245).setVisible(false);
+  this.doorLeft=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(250).setVisible(false);
+  this.doorRight=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(250).setVisible(false);
   this.lobbyInterior=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-interior').setOrigin(.5).setDepth(210).setAlpha(0).setVisible(false);
   this.lobbyImage=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-entrance').setOrigin(.5).setDepth(200).setAlpha(0).setVisible(false);
   this.lobbyButton=this.add.text(this.scale.width/2,this.scale.height-75,'ENTER LOBBY  ›',{fontFamily:'system-ui',fontSize:'15px',color:'#ffe7b6',backgroundColor:'#17202bdd',padding:{x:16,y:12}}).setOrigin(.5).setDepth(220).setInteractive({useHandCursor:true}).setVisible(false);
@@ -338,9 +342,9 @@ class Lab extends Phaser.Scene{
      const key='approved-turn-'+i;this.textures.addCanvas(key,canvas);
      turnFrames.push({key,width:224,height:560,anchorX:112,anchorY:560});
     }
-    console.info('V72: approved eight-frame turn loaded');
-   }else console.error('V72: turn PNG has no transparent samples');
-  }else console.error('V72: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
+    console.info('V74: approved eight-frame turn loaded');
+   }else console.error('V74: turn PNG has no transparent samples');
+  }else console.error('V74: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
   const candidate=extractEntranceFrames(this,this.textures.get('entrance-sheet').getSourceImage());
   if(candidate){entranceFrames=candidate;entranceReady=true}
   const heroSource=this.textures.get('hero-sheet').getSourceImage();
@@ -381,7 +385,7 @@ class Lab extends Phaser.Scene{
   const h=this.scale.height,w=this.scale.width;
   this.lobbyButton.setPosition(w/2,h-75).setVisible(!this.lobbyTransition&&entrance.phase==='stairs-hold');
   if(this.lobbyTransition){
-   this.lobbyTransition.elapsed=Math.min(6.65,this.lobbyTransition.elapsed+dt/2600);
+   this.lobbyTransition.elapsed=Math.min(8.1,this.lobbyTransition.elapsed+dt/2600);
    const progress=Phaser.Math.Easing.Sine.InOut(Math.min(1,this.lobbyTransition.elapsed));
    window.tokyoLobbyProgress=progress;
    if(audioEnabled){
@@ -438,6 +442,22 @@ class Lab extends Phaser.Scene{
      // Play the original recorded elevator bell four seconds after Shot 9 first appears.
      playEffect('ding',dingAudio);
     }
+   }
+   // After the recorded ding, fade to black. Hold, then open two black
+   // elevator-door panels to reveal the approved cubicle floor.
+   const fadeStart=6.00,fadeEnd=6.35,doorsStart=6.75,doorsEnd=7.65;
+   if(this.lobbyTransition.elapsed>=fadeStart){
+    const fade=Phaser.Math.Clamp((this.lobbyTransition.elapsed-fadeStart)/(fadeEnd-fadeStart),0,1);
+    this.blackFade.setVisible(true).setPosition(0,0).setSize(w,h).setAlpha(fade);
+   }
+   if(this.lobbyTransition.elapsed>=doorsStart){
+    const im=this.textures.get('cubicle-floor').getSourceImage();
+    const cover=Math.max(w/im.width,h/im.height);
+    this.cubicleShot.setVisible(true).setPosition(w/2,h/2).setDisplaySize(im.width*cover,im.height*cover);
+    this.blackFade.setVisible(false);
+    const t=Phaser.Math.Easing.Sine.InOut(Phaser.Math.Clamp((this.lobbyTransition.elapsed-doorsStart)/(doorsEnd-doorsStart),0,1));
+    this.doorLeft.setVisible(t<1).setPosition(0,0).setSize(w*(1-t)/2+1,h);
+    this.doorRight.setVisible(t<1).setPosition(w*(1+t)/2,0).setSize(w*(1-t)/2+1,h);
    }
   }
   if(atmosphereVeil)atmosphereVeil.setSize(w,h);
@@ -497,7 +517,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V72 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V74 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
