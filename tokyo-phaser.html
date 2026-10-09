@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V85</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V86</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const music=document.getElementById('tokyoMusic');
 const musicToggle=document.getElementById('musicToggle');
@@ -200,7 +200,7 @@ class Lab extends Phaser.Scene{
  preload(){scenes.forEach((path,i)=>this.load.image('scene'+i,path));CROWD_PATHS.forEach((path,i)=>this.load.image('crowd'+i,path));this.load.image('hero-sheet',HERO_PATH);this.load.image('entrance-sheet',ENTRANCE_PATH);this.load.image('turn-sheet',TURN_PATH);this.load.image('lobby-entrance','assets/1DBFC2B9-FDE9-4894-B6C4-A1DA1B3E9CF0.png');this.load.image('lobby-interior','assets/EB075523-9CB5-463D-8F93-6EE40BCD9E69.png');this.load.image('elevator-approach','assets/E46151EC-FB9E-4250-A088-A2A5D3D238F6.png');this.load.image('elevator-button-shot','assets/DCBF27F8-AB29-4A67-92E1-6CECD794CC17.png');this.load.image('cubicle-floor','assets/0AFADAED-2838-4C66-9E5C-879B3C1CF942.png');this.load.image('office-scroll','assets/4ABB6275-B683-42F7-BA5A-CD1033DD8B3C.png');this.load.image('piper-crt','assets/10868DF0-00EE-4DC1-9ABF-91FB0C8AD622.png')}
  openTerminal(){
   if(this.terminalOpen)return;
-  this.terminalOpen=true;move=0;
+  this.terminalOpen=true;move=0;window.openCRTInterface();
   this.terminalPrompt.setVisible(false);
   this.terminalShade.setVisible(true).setAlpha(0);
   this.terminalZoom.setVisible(true).setAlpha(0);
@@ -210,7 +210,7 @@ class Lab extends Phaser.Scene{
  }
  closeTerminal(){
   if(!this.terminalOpen)return;
-  this.terminalOpen=false;
+  this.terminalOpen=false;window.closeCRTInterface();
   this.tweens.add({targets:[this.terminalShade,this.terminalZoom,this.terminalClose],alpha:0,duration:240,onComplete:()=>{
    this.terminalShade.setVisible(false);this.terminalZoom.setVisible(false);this.terminalClose.setVisible(false);
   }});
@@ -710,6 +710,54 @@ for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
 for(const eventName of ['contextmenu','selectstart','dragstart'])
  document.addEventListener(eventName,e=>e.preventDefault());
 document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+
+// The HTML input is intentional: it invokes the native iOS keyboard reliably.
+const terminalUI=document.getElementById('terminalUI');
+const terminalLog=document.getElementById('terminalLog');
+const terminalInput=document.getElementById('terminalInput');
+let terminalBooted=false;
+const terminalHistory=[];
+let historyIndex=0;
+function terminalPrint(line,cls=''){
+ const div=document.createElement('div');div.textContent=line;
+ if(cls)div.className=cls;
+ terminalLog.appendChild(div);terminalLog.scrollTop=terminalLog.scrollHeight;
+}
+function terminalAnswer(raw){
+ const q=raw.trim().toLowerCase();
+ if(!q)return;
+ if(q==='exit'){game.scene.scenes[0].closeTerminal();return;}
+ if(q==='help')return terminalPrint('COMMANDS: HELP · STATUS · WHO ARE YOU? · EXIT');
+ if(q==='status')return terminalPrint('OpenAnOI / TERMINAL 07\\nLOCAL LINK: ACTIVE\\nNETWORK: RESTRICTED\\nOPERATOR: UNKNOWN');
+ if(q==='who are you?'||q==='who are you')return terminalPrint('This terminal has no assigned operator.\\nWho are you?');
+ if(/anybody|anyone|hello|hi|hey/.test(q))return terminalPrint('That depends. Are you supposed to be here?');
+ terminalPrint('UNRECOGNIZED COMMAND.\\n...But I heard you.','');
+}
+window.openCRTInterface=()=>{
+ terminalUI.classList.add('active');
+ if(!terminalBooted){
+  terminalBooted=true;
+  terminalPrint('OpenAnOI INTERNAL SYSTEM\\nTERMINAL 07\\n\\nCONNECTION ESTABLISHED\\n');
+  terminalPrint('Type HELP for commands.');
+ }
+ setTimeout(()=>terminalInput.focus(),220);
+};
+window.closeCRTInterface=()=>{terminalUI.classList.remove('active');terminalInput.blur();};
+document.getElementById('terminalExit').addEventListener('click',()=>game.scene.scenes[0].closeTerminal());
+document.getElementById('terminalForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const value=terminalInput.value;terminalInput.value='';
+ if(!value.trim())return;
+ terminalHistory.push(value);historyIndex=terminalHistory.length;
+ terminalPrint('> '+value,'promptline');terminalAnswer(value);
+ terminalInput.focus();
+});
+terminalInput.addEventListener('keydown',e=>{
+ e.stopPropagation();
+ if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);terminalInput.value=terminalHistory[historyIndex]||'';}
+ if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(terminalHistory.length,historyIndex+1);terminalInput.value=terminalHistory[historyIndex]||'';}
+});
+
 addEventListener('keydown',e=>{if(e.key==='ArrowRight')move=1;if(e.key==='ArrowLeft')move=-1});
 addEventListener('keyup',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft')move=0});
 </script></body></html>
