@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V62</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V63</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const music=document.getElementById('tokyoMusic');
 const musicToggle=document.getElementById('musicToggle');
@@ -14,7 +14,7 @@ const playSafe=a=>a.play().catch(err=>console.warn('Audio blocked:',a.id,err));
 rainAudio.volume=.35;chimesAudio.volume=.22;jazzAudio.volume=0;doorAudio.volume=.65;stepsAudio.volume=0;
 music.volume=.6;
 musicToggle.addEventListener('pointerdown',e=>e.stopPropagation());
-musicToggle.addEventListener('click',async e=>{e.stopPropagation();if(audioEnabled){audioEnabled=false;[music,rainAudio,chimesAudio,jazzAudio,stepsAudio,doorAudio].forEach(a=>a.pause());musicToggle.textContent='♫ Play audio';return;}audioEnabled=true;const inLobby=!!(window.tokyoLobbyProgress>0);await Promise.all([music,rainAudio,chimesAudio,jazzAudio].map(playSafe));if(inLobby)await playSafe(stepsAudio);musicToggle.textContent='♫ Pause audio';});
+musicToggle.addEventListener('click',async e=>{e.stopPropagation();if(audioEnabled){audioEnabled=false;[music,rainAudio,chimesAudio,jazzAudio,stepsAudio,doorAudio].forEach(a=>a.pause());musicToggle.textContent='♫ Play audio';return;}audioEnabled=true;const inLobby=!!(window.tokyoLobbyProgress>0);if(inLobby){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.volume=.36;}await Promise.all((inLobby?[jazzAudio]:[music,rainAudio,chimesAudio]).map(playSafe));if(inLobby)await playSafe(stepsAudio);musicToggle.textContent='♫ Pause audio';});
 
 const TURN_PATH='assets/tokyo-scenes/tokyo_turn_8frames_RGBA.png';
 const ENTRANCE_PATH='assets/7A7F12BE-E094-4EA1-ACDD-8A203F705564.png';
@@ -38,7 +38,7 @@ function extractEntranceFrames(scene,img){
  const alpha=(x,y)=>data[(y*w+x)*4+3];
  let opaque=0,transparent=0;
  for(let y=0;y<h;y+=11)for(let x=0;x<w;x+=11){const a=alpha(x,y);if(a<10)transparent++;else if(a>245)opaque++}
- if(transparent<opaque*.03){console.error('V62: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
+ if(transparent<opaque*.03){console.error('V63: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
  // Find actual row bands from the alpha silhouette, not from equal thirds.
  const rowOccupied=new Uint8Array(h);
  for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(alpha(x,y)>32){rowOccupied[y]=1;break}
@@ -46,7 +46,7 @@ function extractEntranceFrames(scene,img){
  for(let y=0;y<=h;y++){const on=y<h&&rowOccupied[y];if(on&&start<0)start=y;if(!on&&start>=0){bands.push([start,y]);start=-1}}
  // Minor disconnected flecks must not create extra rows.
  const substantial=bands.filter(([s,e])=>e-s>=h*.065);
- if(substantial.length!==3){console.error('V62: Expected 3 separate alpha rows, found',substantial.length);return null}
+ if(substantial.length!==3){console.error('V63: Expected 3 separate alpha rows, found',substantial.length);return null}
  const specs=[['turn',8],['stairs',8],['crouch',6]],out={turn:[],stairs:[],crouch:[]};
  for(let r=0;r<3;r++){
   const [name,count]=specs[r],[top,bottom]=substantial[r];
@@ -56,12 +56,12 @@ function extractEntranceFrames(scene,img){
   for(let x=0;x<=w;x++){const on=x<w&&colOccupied[x];if(on&&left<0)left=x;if(!on&&left>=0){runs.push([left,x]);left=-1}}
   // Merge tiny gaps inside a character; keep the larger gutters between poses.
   const gutters=[];for(let i=0;i<runs.length-1;i++)gutters.push({i,gap:runs[i+1][0]-runs[i][1]});
-  if(runs.length<count){console.error('V62: Not enough isolated poses in',name,runs.length);return null}
+  if(runs.length<count){console.error('V63: Not enough isolated poses in',name,runs.length);return null}
   const separators=gutters.sort((a,b)=>b.gap-a.gap).slice(0,count-1).map(g=>g.i).sort((a,b)=>a-b);
   const groups=[];let from=0;
   for(const sep of separators){groups.push([runs[from][0],runs[sep][1]]);from=sep+1}
   groups.push([runs[from][0],runs[runs.length-1][1]]);
-  if(groups.length!==count){console.error('V62: Invalid frame groups for',name);return null}
+  if(groups.length!==count){console.error('V63: Invalid frame groups for',name);return null}
   for(let i=0;i<count;i++){
    const [x0,x1]=groups[i];let minX=x1,minY=bottom,maxX=x0-1,maxY=top-1;
    for(let y=top;y<bottom;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>32){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
@@ -73,7 +73,7 @@ function extractEntranceFrames(scene,img){
    out[name].push({key,width:fw,height:fh,anchorX:fw/2,anchorY:fh});
   }
  }
- console.info('V62 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
+ console.info('V63 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
  return out;
 }
 
@@ -167,7 +167,7 @@ class Lab extends Phaser.Scene{
   this.lobbyTransition=null;
   this.lobbyImage=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-entrance').setOrigin(.5).setDepth(200).setAlpha(0).setVisible(false);
   this.lobbyButton=this.add.text(this.scale.width/2,this.scale.height-75,'ENTER LOBBY  ›',{fontFamily:'system-ui',fontSize:'15px',color:'#ffe7b6',backgroundColor:'#17202bdd',padding:{x:16,y:12}}).setOrigin(.5).setDepth(220).setInteractive({useHandCursor:true}).setVisible(false);
-  this.lobbyButton.on('pointerdown',()=>{if(this.lobbyTransition||entrance.phase!=='stairs-hold')return;this.lobbyTransition={elapsed:0,doorPlayed:false,stepsStarted:false};this.lobbyButton.setVisible(false);if(!audioEnabled){audioEnabled=true;[music,rainAudio,chimesAudio,jazzAudio].forEach(playSafe);musicToggle.textContent='♫ Pause audio';}else{playSafe(jazzAudio);}});
+  this.lobbyButton.on('pointerdown',()=>{if(this.lobbyTransition||entrance.phase!=='stairs-hold')return;this.lobbyTransition={elapsed:0,doorPlayed:false,stepsStarted:false};this.lobbyButton.setVisible(false);if(!audioEnabled){audioEnabled=true;[music,rainAudio,chimesAudio].forEach(playSafe);musicToggle.textContent='♫ Pause audio';}playSafe(jazzAudio);});
   scenes.forEach((_,i)=>{
    const key='scene'+i;makeEmission(this,key);
    // Precompute a compact emissive color field once, never read pixels during rendering.
@@ -298,9 +298,9 @@ class Lab extends Phaser.Scene{
      const key='approved-turn-'+i;this.textures.addCanvas(key,canvas);
      turnFrames.push({key,width:224,height:560,anchorX:112,anchorY:560});
     }
-    console.info('V62: approved eight-frame turn loaded');
-   }else console.error('V62: turn PNG has no transparent samples');
-  }else console.error('V62: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
+    console.info('V63: approved eight-frame turn loaded');
+   }else console.error('V63: turn PNG has no transparent samples');
+  }else console.error('V63: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
   const candidate=extractEntranceFrames(this,this.textures.get('entrance-sheet').getSourceImage());
   if(candidate){entranceFrames=candidate;entranceReady=true}
   const heroSource=this.textures.get('hero-sheet').getSourceImage();
@@ -350,7 +350,7 @@ class Lab extends Phaser.Scene{
     if(progress>.32&&!this.lobbyTransition.stepsStarted){this.lobbyTransition.stepsStarted=true;playSafe(stepsAudio)}
     stepsAudio.volume=.32*Phaser.Math.Clamp((progress-.32)/.3,0,1);
     if(progress>.82&&!this.lobbyTransition.doorPlayed){this.lobbyTransition.doorPlayed=true;playSafe(doorAudio)}
-    if(progress>=1){stepsAudio.pause();stepsAudio.currentTime=0;}
+    if(progress>=1){[music,rainAudio,chimesAudio,stepsAudio].forEach(a=>{a.pause();a.currentTime=0;});}
    }
    const src=this.textures.get('lobby-entrance').getSourceImage();
    const fit=Math.max(w/src.width,h/src.height);
@@ -413,7 +413,7 @@ class Lab extends Phaser.Scene{
     .setDisplaySize(rw*sizes[sceneIndex],rh*h);
   });
   glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
-  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V62 timing.
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V63 timing.
   flickerLights.forEach(f=>{
    const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
    const t=time*.001;
