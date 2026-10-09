@@ -1,17 +1,19 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V86</div><div class="status" id="status">Loading Phaser…</div>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="officeMusic" src="assets/window_to_the_lobby.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">THE IMPOSSIBLE ATLAS · PHASER LIGHTING LAB · V87</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script>
 const music=document.getElementById('tokyoMusic');
 const musicToggle=document.getElementById('musicToggle');
 const rainAudio=document.getElementById('tokyoRain');
 const chimesAudio=document.getElementById('tokyoChimes');
 const jazzAudio=document.getElementById('lobbyJazz');
+const officeAudio=document.getElementById('officeMusic');
 const doorAudio=document.getElementById('lobbyDoor');
 const stepsAudio=document.getElementById('lobbySteps');
 const clickAudio=document.getElementById('elevatorClick');
 const dingAudio=document.getElementById('elevatorDing');
 let audioEnabled=false;
+let officeAudioStarted=false;
 const playSafe=a=>a.play().catch(err=>console.warn('Audio blocked:',a.id,err));
 // iOS Safari requires the audio context to be unlocked by a direct user gesture.
 // Keep short one-shot effects in Web Audio rather than invoking HTMLMediaElement.play()
@@ -50,7 +52,12 @@ function playEffect(name,fallback){
 rainAudio.volume=.35;chimesAudio.volume=.22;jazzAudio.volume=0;doorAudio.volume=.65;stepsAudio.volume=0;
 music.volume=.6;
 musicToggle.addEventListener('pointerdown',e=>e.stopPropagation());
-musicToggle.addEventListener('click',async e=>{e.stopPropagation();unlockEffects();if(audioEnabled){audioEnabled=false;[music,rainAudio,chimesAudio,jazzAudio,stepsAudio,doorAudio].forEach(a=>a.pause());musicToggle.textContent='♫ Play audio';return;}audioEnabled=true;const inLobby=!!(window.tokyoLobbyProgress>0);if(inLobby){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.volume=.36;}await Promise.all((inLobby?[jazzAudio]:[music,rainAudio,chimesAudio]).map(playSafe));if(inLobby)await playSafe(stepsAudio);musicToggle.textContent='♫ Pause audio';});
+musicToggle.addEventListener('click',async e=>{e.stopPropagation();unlockEffects();if(audioEnabled){audioEnabled=false;[music,rainAudio,chimesAudio,jazzAudio,officeAudio,stepsAudio,doorAudio].forEach(a=>a.pause());musicToggle.textContent='♫ Play audio';return;}audioEnabled=true;const inOffice=!!window.tokyoOfficeEntered;
+ const inLobby=!!(window.tokyoLobbyProgress>0);
+ if(inOffice){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.pause();officeAudio.volume=.40;}
+ else if(inLobby){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.volume=.36;}
+ await Promise.all((inOffice?[officeAudio]:inLobby?[jazzAudio]:[music,rainAudio,chimesAudio]).map(playSafe));
+ if(inLobby&&!inOffice)await playSafe(stepsAudio);musicToggle.textContent='♫ Pause audio';});
 
 const TURN_PATH='assets/tokyo-scenes/tokyo_turn_8frames_RGBA.png';
 const ENTRANCE_PATH='assets/7A7F12BE-E094-4EA1-ACDD-8A203F705564.png';
@@ -255,7 +262,7 @@ class Lab extends Phaser.Scene{
   this.lobbyImage=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-entrance').setOrigin(.5).setDepth(200).setAlpha(0).setVisible(false);
   this.lobbyButton=this.add.text(this.scale.width/2,this.scale.height-75,'ENTER LOBBY  ›',{fontFamily:'system-ui',fontSize:'15px',color:'#ffe7b6',backgroundColor:'#17202bdd',padding:{x:16,y:12}}).setOrigin(.5).setDepth(220).setInteractive({useHandCursor:true}).setVisible(false);
   this.lobbyButton.on('pointerdown',()=>{unlockEffects();if(this.lobbyTransition||entrance.phase!=='stairs-hold')return;this.lobbyTransition={elapsed:0,doorPlayed:false,stepsStarted:false,clickPlayed:false,dingPlayed:false};this.lobbyButton.setVisible(false);if(!audioEnabled){audioEnabled=true;[music,rainAudio,chimesAudio].forEach(playSafe);musicToggle.textContent='♫ Pause audio';}playSafe(jazzAudio);});
-  if(new URLSearchParams(location.search).get('start')==='terminal'){
+  if(['terminal','office'].includes(new URLSearchParams(location.search).get('start'))){
    this.lobbyTransition={elapsed:4.5,doorPlayed:true,stepsStarted:true,clickPlayed:true,dingPlayed:true};
    this.checkpointInitialized=true;entrance.phase='stairs-hold';entrance.elapsed=1;move=0;
   }
@@ -438,7 +445,7 @@ class Lab extends Phaser.Scene{
    if(audioEnabled){
     const fade=Phaser.Math.Clamp(progress/.85,0,1);
     music.volume=.6*(1-fade);rainAudio.volume=.35*(1-fade);chimesAudio.volume=.22*(1-fade);
-    jazzAudio.volume=.36*fade;
+    jazzAudio.volume=window.tokyoOfficeEntered?0:.36*fade;
     if(progress>.40&&!this.lobbyTransition.stepsStarted){this.lobbyTransition.stepsStarted=true;/* no walking sequence */}
     stepsAudio.volume=.32*Phaser.Math.Clamp((progress-.32)/.3,0,1);
     if(progress>.20&&!this.lobbyTransition.doorPlayed){this.lobbyTransition.doorPlayed=true;playSafe(doorAudio)}
@@ -490,13 +497,19 @@ class Lab extends Phaser.Scene{
    // Preserve the approved elevator-door reveal, then enter the playable pixel-art floor.
    const officeStart=4.18;
    if(this.lobbyTransition.elapsed>=officeStart){
+    window.tokyoOfficeEntered=true;
+    if(audioEnabled&&!officeAudioStarted){
+     officeAudioStarted=true;
+     jazzAudio.pause();stepsAudio.pause();
+     officeAudio.volume=.40;playSafe(officeAudio);
+    }
     const image=this.textures.get('office-scroll').getSourceImage();
     const worldHeight=h,worldWidth=image.width*h/image.height;
     const maxScroll=Math.max(0,worldWidth-w);
     const terminalWorldX=worldWidth*.78;
     // Stop at the desk instead of allowing the player to walk through it.
     const stopDistance=Math.max(0,terminalWorldX-w*.48-w*.15);
-    if(new URLSearchParams(location.search).get('start')==='terminal'&&!this.terminalCheckpointPlaced){
+    if(['terminal','office'].includes(new URLSearchParams(location.search).get('start'))&&!this.terminalCheckpointPlaced){
      this.terminalCheckpointPlaced=true;
      this.officeDistance=Phaser.Math.Clamp(terminalWorldX-w*.66,0,maxScroll);
      this.officeEntryX=w*.48;
