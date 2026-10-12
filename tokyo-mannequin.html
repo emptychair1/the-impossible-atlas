@@ -757,10 +757,10 @@ class Lab extends Phaser.Scene{
    const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575));
    const baseScale=heroHeight/390;
    const referenceHeight=useMannequin?128:entrance.phase==='walk'?frame.height:frames===turnFrames?560:frame.height;
-   const scale=heroHeight/Math.max(1,referenceHeight)*(1-.16*stairT)*(useMannequin?1:1);
+   const scale=heroHeight/Math.max(1,referenceHeight)*(1-.16*stairT)*(useMannequin?1.62:1);
    const footWorld=stairsStart+(doorWorld-stairsStart)*stairT;
    const pxWorld=entrance.phase==='walk'?travel+heroX:(entrance.phase==='turn'||entrance.phase==='turn-hold')?stairsStart:footWorld;
-   const feet=(entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?feetY:h*(.85-.115*stairT))+(entrance.phase==='stairs-hold'?Math.max(2,h*.003):0)-(useMannequin?25:0);
+   const feet=(entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?feetY:h*(.85-.115*stairT))+(entrance.phase==='stairs-hold'?Math.max(2,h*.003):0)-(useMannequin?12:0);
    const crouchFactor=1;
    const drawX=pxWorld-travel-frame.anchorX*scale;
    const drawY=feet-frame.anchorY*scale*crouchFactor;
