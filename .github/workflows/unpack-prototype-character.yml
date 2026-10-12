@@ -1,0 +1,39 @@
+name: Unpack prototype character audition
+on:
+  push:
+    paths:
+      - '.github/workflows/unpack-prototype-character.yml'
+      - 'prototype-character/prototype_stunt_audition.zip'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  unpack:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Unpack audition safely
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import zipfile
+          root=Path('prototype-character').resolve()
+          with zipfile.ZipFile(root/'prototype_stunt_audition.zip') as z:
+              for member in z.infolist():
+                  target=(root/member.filename).resolve()
+                  if not target.is_relative_to(root):
+                      raise RuntimeError('Unsafe archive path: '+member.filename)
+              z.extractall(root)
+          print('Extracted audition into',root)
+          PY
+      - name: Commit extracted files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add prototype-character/index.html prototype-character/assets
+          if ! git diff --cached --quiet; then
+            git commit -m "feat: unpack prototype character audition"
+            git push
+          fi
