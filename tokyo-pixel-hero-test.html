@@ -1,0 +1,1185 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}#alarmRedLights{pointer-events:none;position:fixed;inset:0;z-index:110;display:none;mix-blend-mode:screen;background:linear-gradient(90deg,rgba(255,0,20,.18),transparent 40%,rgba(255,0,20,.18)),radial-gradient(ellipse at 22% 8%,rgba(255,0,0,.48),transparent 53%),radial-gradient(ellipse at 78% 8%,rgba(255,0,0,.48),transparent 53%);animation:emergencyPulse 1.15s ease-in-out infinite alternate}body.alarm-active #alarmRedLights{display:block}@keyframes emergencyPulse{from{opacity:.12}to{opacity:.95}}@media(prefers-reduced-motion:reduce){#alarmRedLights{animation:none;opacity:.45}}#corridorControls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 28px);right:18px;z-index:130;display:none;gap:12px;pointer-events:none}#corridorControls button{pointer-events:auto;border:1px solid #84ffbd88;background:#031b1cbb;color:#b4ffe2;border-radius:50%;width:78px;height:78px;font:700 13px system-ui;touch-action:none}#corridorCaption{position:fixed;top:23%;left:14px;max-width:68%;z-index:125;display:none;color:#adffd1;background:#001a13c9;border-left:3px solid #63ffad;padding:10px 12px;font:600 14px monospace;pointer-events:none}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack">♫ Play music</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="piperUrgent1" src="assets/ElevenLabs_2026-10-09T04_53_29_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent2" src="assets/ElevenLabs_2026-10-09T04_54_08_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent3" src="assets/ElevenLabs_2026-10-09T04_54_54_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="dangerMusic" src="assets/the_corridor_trap.mp3" preload="auto" loop playsinline></audio><audio id="securityAlarm" src="assets/voicebosch-intruder-alert-181439.mp3" preload="auto" loop playsinline></audio><audio id="piperVoice" src="assets/ElevenLabs_2026-10-09T04_42_53_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="officeMusic" src="assets/window_to_the_lobby.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div id="corridorCaption"></div><div id="corridorControls"><button id="corridorJump">▲ JUMP</button><button id="corridorCrouch">▼ CROUCH</button></div><div id="alarmRedLights" aria-hidden="true"></div><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">THE IMPOSSIBLE ATLAS · PHASER · PIXEL HERO TEST · V121</div><div class="status" id="status">Loading Phaser…</div>
+<script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
+const music=document.getElementById('tokyoMusic');
+const musicToggle=document.getElementById('musicToggle');
+const rainAudio=document.getElementById('tokyoRain');
+const chimesAudio=document.getElementById('tokyoChimes');
+const jazzAudio=document.getElementById('lobbyJazz');
+const officeAudio=document.getElementById('officeMusic');
+const piperVoice=document.getElementById('piperVoice');
+let voicePlayed=false;
+let alarmStarted=false;
+const urgentClips=['piperUrgent1','piperUrgent2','piperUrgent3'].map(id=>document.getElementById(id));
+const alarmAudio=document.getElementById('securityAlarm');
+const dangerAudio=document.getElementById('dangerMusic');
+let dangerStarted=false;
+function startDangerMusic(){
+ if(dangerStarted||!alarmStarted)return;
+ dangerStarted=true;
+ officeAudio.pause();
+ dangerAudio.volume=.42;
+ // Once the chase score enters, the intruder alert becomes distant ambience.
+ // Keep its original volume during the warning sequence.
+ if(!alarmAudio.paused){
+  const from=alarmAudio.volume, to=.085, started=performance.now(), duration=1000;
+  const fade=now=>{
+   if(!dangerStarted||alarmAudio.paused)return;
+   const t=Math.min(1,(now-started)/duration);
+   alarmAudio.volume=from+(to-from)*t;
+   if(t<1)requestAnimationFrame(fade);
+  };
+  requestAnimationFrame(fade);
+ }else{
+  alarmAudio.volume=.085;
+ }
+ playSafe(dangerAudio);
+}
+const normalOfficeVolume=.40;
+function startSecurityAlarm(){
+ if(alarmStarted)return;
+ alarmStarted=true;
+ window.tokyoAlarmActive=true;
+ document.body.classList.add('alarm-active');
+ terminalPrint('\\n!!! SECURITY BREACH DETECTED !!!\\nUNAUTHORIZED AUDIO ROUTE / FLOOR 07\\nSECURITY DISPATCHED\\n');
+ officeAudio.volume=.06;
+ alarmAudio.volume=.38;
+ playSafe(alarmAudio);
+ // Sequence the three supplied recordings by their filenames' timestamps.
+ let next=0;
+ const playNext=()=>{
+  if(next>=urgentClips.length){
+   terminalPrint('EMERGENCY: SERVICE CORRIDOR / LEFT\\nCAMERA ACCESS: RESTRICTED');
+   // Automatically return to the office once all urgent instructions finish.
+   setTimeout(()=>{
+    const scene=game.scene.scenes.find(s=>typeof s.closeTerminal==='function');
+    if(scene?.terminalOpen)scene.closeTerminal();
+   },850);
+   return;
+  }
+  const clip=urgentClips[next++];
+  clip.currentTime=0;clip.volume=1;
+  clip.onended=playNext;
+  clip.onerror=playNext;
+  playSafe(clip).catch?.(()=>{});
+ };
+ playNext();
+}
+function speakFirstLine(){
+ if(voicePlayed)return;
+ voicePlayed=true;
+ officeAudio.volume=.10;
+ piperVoice.currentTime=0;piperVoice.volume=.95;
+ piperVoice.addEventListener('ended',startSecurityAlarm,{once:true});
+ piperVoice.addEventListener('error',startSecurityAlarm,{once:true});
+ piperVoice.play().catch(err=>{console.warn('Voice playback blocked:',err);officeAudio.volume=normalOfficeVolume;});
+}
+const doorAudio=document.getElementById('lobbyDoor');
+const stepsAudio=document.getElementById('lobbySteps');
+const clickAudio=document.getElementById('elevatorClick');
+const dingAudio=document.getElementById('elevatorDing');
+let audioEnabled=false;
+let officeAudioStarted=false;
+const playSafe=a=>a.play().catch(err=>console.warn('Audio blocked:',a.id,err));
+// iOS Safari requires the audio context to be unlocked by a direct user gesture.
+// Keep short one-shot effects in Web Audio rather than invoking HTMLMediaElement.play()
+// from the animation loop, where iOS may reject playback.
+let effectContext=null;
+const effectBuffers=new Map();
+const effectFiles={
+ click:'assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3',
+ ding:'assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3'
+};
+function unlockEffects(){
+ try{
+  if(!effectContext)effectContext=new (window.AudioContext||window.webkitAudioContext)();
+  effectContext.resume().catch(console.warn);
+  for(const [name,url] of Object.entries(effectFiles)){
+   if(effectBuffers.has(name))continue;
+   effectBuffers.set(name,null);
+   fetch(url).then(r=>{if(!r.ok)throw Error(url+' '+r.status);return r.arrayBuffer()})
+    .then(bytes=>effectContext.decodeAudioData(bytes))
+    .then(buffer=>effectBuffers.set(name,buffer))
+    .catch(err=>{effectBuffers.delete(name);console.warn('Effect load failed',name,err)});
+  }
+ }catch(err){console.warn('Web Audio unavailable',err)}
+}
+function playEffect(name,fallback){
+ const buffer=effectBuffers.get(name);
+ if(effectContext&&buffer){
+  if(effectContext.state==='suspended')effectContext.resume().catch(console.warn);
+  const source=effectContext.createBufferSource(),gain=effectContext.createGain();
+  source.buffer=buffer;gain.gain.value=name==='click'?.95:.9;
+  source.connect(gain);gain.connect(effectContext.destination);source.start();return;
+ }
+ // Fallback for browsers without Web Audio or effects not yet decoded.
+ fallback.currentTime=0;playSafe(fallback);
+}
+rainAudio.volume=.35;chimesAudio.volume=.22;jazzAudio.volume=0;doorAudio.volume=.65;stepsAudio.volume=0;
+music.volume=.6;
+musicToggle.addEventListener('pointerdown',e=>e.stopPropagation());
+musicToggle.addEventListener('click',async e=>{e.stopPropagation();unlockEffects();if(audioEnabled){audioEnabled=false;[music,rainAudio,chimesAudio,jazzAudio,officeAudio,dangerAudio,piperVoice,stepsAudio,doorAudio].forEach(a=>a.pause());musicToggle.textContent='♫ Play audio';return;}audioEnabled=true;const inDanger=dangerStarted||!!window.tokyoCorridorActive;
+ const inOffice=!!window.tokyoOfficeEntered;
+ const inLobby=!!(window.tokyoLobbyProgress>0);
+ if(inDanger){[music,rainAudio,chimesAudio,jazzAudio,officeAudio].forEach(a=>a.pause());alarmAudio.volume=.085;playSafe(alarmAudio);}
+ else if(inOffice){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.pause();officeAudio.volume=.40;}
+ else if(inLobby){music.pause();rainAudio.pause();chimesAudio.pause();jazzAudio.volume=.36;}
+ await Promise.all((inDanger?[dangerAudio]:inOffice?[officeAudio]:inLobby?[jazzAudio]:[music,rainAudio,chimesAudio]).map(playSafe));
+ if(inLobby&&!inOffice)await playSafe(stepsAudio);musicToggle.textContent='♫ Pause audio';});
+
+const TURN_PATH='assets/tokyo-scenes/tokyo_turn_8frames_RGBA.png';
+const ENTRANCE_PATH='assets/7A7F12BE-E094-4EA1-ACDD-8A203F705564.png';
+const HERO_PATH='assets/tokyo-scenes/9E8C5BA0-F636-4EF0-9E4F-FDF7908A3827.png';
+function extractSpriteFrames(image){
+const source=document.createElement('canvas');source.width=image.naturalWidth;source.height=image.naturalHeight;const sc=source.getContext('2d',{willReadFrequently:true});sc.drawImage(image,0,0);const pixels=sc.getImageData(0,0,source.width,source.height).data;const w=source.width,h=source.height,count=w*h,labels=new Uint16Array(count),queue=new Uint32Array(count),components=[];const threshold=32;let label=0;
+for(let start=0;start<count;start++){if(labels[start]||pixels[start*4+3]<=threshold)continue;label++;let head=0,tail=0,area=0,minX=w,minY=h,maxX=0,maxY=0;labels[start]=label;queue[tail++]=start;
+while(head<tail){const i=queue[head++],x=i%w,y=(i/w)|0;area++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);for(let dy=-1;dy<=1;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const ni=ny*w+nx;if(!labels[ni]&&pixels[ni*4+3]>threshold){labels[ni]=label;queue[tail++]=ni}}}}if(area>10000)components.push({label,minX,minY,maxX,maxY})}
+components.sort((a,b)=>(a.minY<h/2?0:1)-(b.minY<h/2?0:1)||a.minX-b.minX);if(components.length!==16){console.error('Expected 16 figures, found',components.length);return []}
+const order=new Uint16Array(label+1);components.forEach((c,i)=>order[c.label]=i+1);for(let i=0;i<count;i++)labels[i]=order[labels[i]]||0;
+const additions=new Uint16Array(count);for(let pass=0;pass<6;pass++){additions.fill(0);for(let i=0;i<count;i++){if(labels[i]||!pixels[i*4+3])continue;const x=i%w,y=(i/w)|0;let owner=0,conflict=false;for(let dy=-1;dy<=1&&!conflict;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const near=labels[ny*w+nx];if(!near)continue;if(owner&&owner!==near){conflict=true;break}owner=near}}if(owner&&!conflict)additions[i]=owner}for(let i=0;i<count;i++)if(additions[i])labels[i]=additions[i]}
+const bounds=Array.from({length:16},()=>({minX:w,minY:h,maxX:0,maxY:0}));for(let i=0;i<count;i++){const owner=labels[i];if(!owner)continue;const x=i%w,y=(i/w)|0,b=bounds[owner-1];b.minX=Math.min(b.minX,x);b.maxX=Math.max(b.maxX,x);b.minY=Math.min(b.minY,y);b.maxY=Math.max(b.maxY,y)}
+return bounds.map((b,frameIndex)=>{const fw=b.maxX-b.minX+1,fh=b.maxY-b.minY+1,fc=document.createElement('canvas');fc.width=fw;fc.height=fh;const fx=fc.getContext('2d'),fd=fx.createImageData(fw,fh);let weight=0,hoodX=0;for(let y=b.minY;y<=b.maxY;y++)for(let x=b.minX;x<=b.maxX;x++){const si=y*w+x;if(labels[si]!==frameIndex+1)continue;const so=si*4,to=((y-b.minY)*fw+x-b.minX)*4;for(let k=0;k<4;k++)fd.data[to+k]=pixels[so+k];if(y<=b.minY+fh*.28&&pixels[so+3]>threshold){hoodX+=(x-b.minX)*pixels[so+3];weight+=pixels[so+3]}}fx.putImageData(fd,0,0);return{image:fc,width:fw,height:fh,anchorX:weight?hoodX/weight:fw/2,anchorY:fh}})}
+
+let turnFrames=[],entranceFrames={turn:[],stairs:[],crouch:[]},entranceReady=false;
+function extractEntranceFrames(scene,img){
+ const w=img.naturalWidth,h=img.naturalHeight;
+ const source=document.createElement('canvas');source.width=w;source.height=h;
+ const ctx=source.getContext('2d',{willReadFrequently:true});ctx.drawImage(img,0,0);
+ const data=ctx.getImageData(0,0,w,h).data;
+ const alpha=(x,y)=>data[(y*w+x)*4+3];
+ let opaque=0,transparent=0;
+ for(let y=0;y<h;y+=11)for(let x=0;x<w;x+=11){const a=alpha(x,y);if(a<10)transparent++;else if(a>245)opaque++}
+ if(transparent<opaque*.03){console.error('V85: Entrance sheet is opaque; cannot safely composite. Original hero retained.');return null}
+ // Find actual row bands from the alpha silhouette, not from equal thirds.
+ const rowOccupied=new Uint8Array(h);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(alpha(x,y)>32){rowOccupied[y]=1;break}
+ const bands=[];let start=-1;
+ for(let y=0;y<=h;y++){const on=y<h&&rowOccupied[y];if(on&&start<0)start=y;if(!on&&start>=0){bands.push([start,y]);start=-1}}
+ // Minor disconnected flecks must not create extra rows.
+ const substantial=bands.filter(([s,e])=>e-s>=h*.065);
+ if(substantial.length!==3){console.error('V85: Expected 3 separate alpha rows, found',substantial.length);return null}
+ const specs=[['turn',8],['stairs',8],['crouch',6]],out={turn:[],stairs:[],crouch:[]};
+ for(let r=0;r<3;r++){
+  const [name,count]=specs[r],[top,bottom]=substantial[r];
+  const colOccupied=new Uint8Array(w);
+  for(let x=0;x<w;x++)for(let y=top;y<bottom;y++)if(alpha(x,y)>32){colOccupied[x]=1;break}
+  const runs=[];let left=-1;
+  for(let x=0;x<=w;x++){const on=x<w&&colOccupied[x];if(on&&left<0)left=x;if(!on&&left>=0){runs.push([left,x]);left=-1}}
+  // Merge tiny gaps inside a character; keep the larger gutters between poses.
+  const gutters=[];for(let i=0;i<runs.length-1;i++)gutters.push({i,gap:runs[i+1][0]-runs[i][1]});
+  if(runs.length<count){console.error('V85: Not enough isolated poses in',name,runs.length);return null}
+  const separators=gutters.sort((a,b)=>b.gap-a.gap).slice(0,count-1).map(g=>g.i).sort((a,b)=>a-b);
+  const groups=[];let from=0;
+  for(const sep of separators){groups.push([runs[from][0],runs[sep][1]]);from=sep+1}
+  groups.push([runs[from][0],runs[runs.length-1][1]]);
+  if(groups.length!==count){console.error('V85: Invalid frame groups for',name);return null}
+  for(let i=0;i<count;i++){
+   const [x0,x1]=groups[i];let minX=x1,minY=bottom,maxX=x0-1,maxY=top-1;
+   for(let y=top;y<bottom;y++)for(let x=x0;x<x1;x++)if(alpha(x,y)>32){minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y)}
+   if(maxX<minX||maxY<minY)return null;
+   const fw=maxX-minX+1,fh=maxY-minY+1;
+   const canvas=document.createElement('canvas');canvas.width=fw;canvas.height=fh;
+   canvas.getContext('2d').drawImage(source,minX,minY,fw,fh,0,0,fw,fh);
+   const key='entrance-'+name+'-'+i;scene.textures.addCanvas(key,canvas);
+   out[name].push({key,width:fw,height:fh,anchorX:fw/2,anchorY:fh});
+  }
+ }
+ console.info('V85 entrance frame bounds verified',Object.fromEntries(Object.entries(out).map(([k,v])=>[k,v.map(f=>[f.width,f.height])])));
+ return out;
+}
+
+let pixelHeroAssets=null;let heroFrames=[],heroActor=null,heroLight=null,heroLighting={strength:0,color:[0,0,0]},walkClock=0;
+const CROWD_PATHS=["assets/umbrella-commuter.png","assets/phone-walker.png","assets/briefcase-commuter.png","assets/umbrella-couple.png","assets/umbrella-woman.png"];
+function extractPedestrianFrames(image){
+ // Identical connected-alpha component isolation as the hero, generalized to eight frames.
+ const w=image.naturalWidth,h=image.naturalHeight,source=document.createElement('canvas');source.width=w;source.height=h;
+ const sc=source.getContext('2d',{willReadFrequently:true});sc.drawImage(image,0,0);
+ const pixels=sc.getImageData(0,0,w,h).data,count=w*h,labels=new Uint16Array(count),queue=new Uint32Array(count),components=[];
+ let label=0;const threshold=32;
+ for(let start=0;start<count;start++){
+  if(labels[start]||pixels[start*4+3]<=threshold)continue;
+  label++;let head=0,tail=0,area=0,minX=w,minY=h,maxX=0,maxY=0;labels[start]=label;queue[tail++]=start;
+  while(head<tail){const i=queue[head++],x=i%w,y=(i/w)|0;area++;minX=Math.min(minX,x);maxX=Math.max(maxX,x);minY=Math.min(minY,y);maxY=Math.max(maxY,y);
+   for(let dy=-1;dy<=1;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const ni=ny*w+nx;if(!labels[ni]&&pixels[ni*4+3]>threshold){labels[ni]=label;queue[tail++]=ni}}}
+  }
+  if(area>Math.max(200,w*h*.0005))components.push({label,minX,minY,maxX,maxY,area});
+ }
+ components.sort((a,b)=>a.minY-b.minY||a.minX-b.minX);
+ if(components.length!==8){console.warn('Pedestrian sprite must contain eight separate transparent figures; found',components.length,image.src);return []}
+ const order=new Uint16Array(label+1);components.forEach((c,i)=>order[c.label]=i+1);
+ for(let i=0;i<count;i++)labels[i]=order[labels[i]]||0;
+ const additions=new Uint16Array(count);
+ for(let pass=0;pass<6;pass++){additions.fill(0);for(let i=0;i<count;i++){if(labels[i]||!pixels[i*4+3])continue;const x=i%w,y=(i/w)|0;let owner=0,conflict=false;for(let dy=-1;dy<=1&&!conflict;dy++){const ny=y+dy;if(ny<0||ny>=h)continue;for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const nx=x+dx;if(nx<0||nx>=w)continue;const near=labels[ny*w+nx];if(!near)continue;if(owner&&owner!==near){conflict=true;break}owner=near}}if(owner&&!conflict)additions[i]=owner}for(let i=0;i<count;i++)if(additions[i])labels[i]=additions[i]}
+ const bounds=Array.from({length:8},()=>({minX:w,minY:h,maxX:0,maxY:0}));
+ for(let i=0;i<count;i++){const owner=labels[i];if(!owner)continue;const x=i%w,y=(i/w)|0,b=bounds[owner-1];b.minX=Math.min(b.minX,x);b.maxX=Math.max(b.maxX,x);b.minY=Math.min(b.minY,y);b.maxY=Math.max(b.maxY,y)}
+ return bounds.map((b,index)=>{const fw=b.maxX-b.minX+1,fh=b.maxY-b.minY+1,fc=document.createElement('canvas');fc.width=fw;fc.height=fh;const fx=fc.getContext('2d'),fd=fx.createImageData(fw,fh);
+ for(let y=b.minY;y<=b.maxY;y++)for(let x=b.minX;x<=b.maxX;x++){const si=y*w+x;if(labels[si]!==index+1)continue;const so=si*4,to=((y-b.minY)*fw+x-b.minX)*4;for(let k=0;k<4;k++)fd.data[to+k]=pixels[so+k]}
+ fx.putImageData(fd,0,0);return{image:fc,width:fw,height:fh,anchorX:fw/2,anchorY:fh}});
+}
+
+const crowdRandom=n=>{const x=Math.sin(n*127.1+78.233)*43758.5453;return x-Math.floor(x)};
+const pedestrians=Array.from({length:30},(_,i)=>({type:i%5,phase:(i+crowdRandom(i+31)*.72)/30,speed:19+crowdRandom(i+71)*24,step:crowdRandom(i+111)*8,flip:i%5===4}));
+let crowdTextures=Array.from({length:5},()=>[]),crowdActors=[],lightFields=[];
+const ROOT='assets/tokyo-scenes/';
+const scenes=[ROOT+'FFC4A81F-57E3-4153-8242-4DBB5DF6AAF4.png',ROOT+'745F0F74-D425-4FFD-8E82-FD3DA2F35910.png'];
+let game,world,glows=[],sceneImages=[],atmosphereVeil=null,foregroundCar=null,flickerLights=[],rainLayers=[],reflectionBands=[],travel=0,move=0,entrance={phase:'walk',elapsed:0},luminosity=1,viewport={w:innerWidth,h:innerHeight};
+const status=document.getElementById('status');
+function makeEmission(scene,key){
+ const source=scene.textures.get(key).getSourceImage(),w=source.width,h=source.height;
+ const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+ const c=canvas.getContext('2d',{willReadFrequently:true});c.drawImage(source,0,0);
+ const pixels=c.getImageData(0,0,w,h),d=pixels.data;
+ for(let i=0;i<d.length;i+=4){
+  const r=d[i],g=d[i+1],b=d[i+2],peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b);
+  const lum=.2126*r+.7152*g+.0722*b;
+  const intensity=Math.max((lum-168)/65,(peak-175)/80*Math.min(1,chroma/80));
+  d[i+3]=Math.round(230*Math.max(0,Math.min(1,intensity)));
+ }
+ c.putImageData(pixels,0,0);
+ scene.textures.addCanvas(key+'-emission',canvas);
+}
+// One shared, world-anchored lighting calculation for pedestrians and protagonist.
+function sampleNeon(worldX,worldY,sizes,height){
+ let offset=0,fieldIndex=-1;
+ for(let i=0;i<sizes.length;i++){if(worldX>=offset&&worldX<offset+sizes[i]){fieldIndex=i;break}offset+=sizes[i]}
+ if(fieldIndex<0)return {color:[0,0,0],strength:0};
+ const field=lightFields[fieldIndex],cx=Math.round((worldX-offset)/sizes[fieldIndex]*(field.width-1));
+ const cy=Math.round(worldY/height*(field.height-1));
+ let best=0,rr=0,gg=0,bb=0;
+ for(let dy=-16;dy<=16;dy+=2)for(let dx=-20;dx<=20;dx+=2){
+  const xx=cx+dx,yy=cy+dy;if(xx<0||yy<0||xx>=field.width||yy>=field.height)continue;
+  const k=(yy*field.width+xx)*4,r=field.data[k],g=field.data[k+1],b=field.data[k+2];
+  const peak=Math.max(r,g,b),floor=Math.min(r,g,b),chroma=peak-floor;
+  const saturation=chroma/Math.max(1,peak),bright=Math.max(0,Math.min(1,(peak-145)/90));
+  const warm=(r>b*1.14&&r>g*.88)?1.9:1;
+  const falloff=1/(1+(dx*dx+dy*dy)/125);
+  const score=bright*Math.pow(saturation,1.3)*falloff*warm;
+  if(score>best){best=score;rr=r;gg=g;bb=b}
+ }
+ const floor=Math.min(rr,gg,bb),peak=Math.max(rr,gg,bb),vivid=peak>0?255/peak:0;
+ return {color:[rr,gg,bb].map(v=>Math.max(0,Math.min(255,Math.round((v-floor*.55)*vivid)))),
+ strength:Math.min(.65,best*1.65)*luminosity};
+}
+function smoothLight(target,sample,dt){
+ const easing=1-Math.exp(-Math.min(dt,50)/170);
+ if(target.glowStrength!==undefined){
+  target.glowStrength+=(sample.strength-target.glowStrength)*easing;
+  target.glowColor.forEach((v,i)=>target.glowColor[i]+=(sample.color[i]-v)*easing);
+ }else{
+  target.strength+=(sample.strength-target.strength)*easing;
+  target.color.forEach((v,i)=>target.color[i]+=(sample.color[i]-v)*easing);
+ }
+}
+class Lab extends Phaser.Scene{
+ constructor(){super('Lab')}
+ preload(){scenes.forEach((path,i)=>this.load.image('scene'+i,path));CROWD_PATHS.forEach((path,i)=>this.load.image('crowd'+i,path));this.load.image('hero-sheet',HERO_PATH);if(pixelHeroAssets){for(const [key,url] of Object.entries(pixelHeroAssets))this.load.image('pixel-'+key,url)}this.load.image('entrance-sheet',ENTRANCE_PATH);this.load.image('turn-sheet',TURN_PATH);this.load.image('lobby-entrance','assets/1DBFC2B9-FDE9-4894-B6C4-A1DA1B3E9CF0.png');this.load.image('lobby-interior','assets/EB075523-9CB5-463D-8F93-6EE40BCD9E69.png');this.load.image('elevator-approach','assets/E46151EC-FB9E-4250-A088-A2A5D3D238F6.png');this.load.image('elevator-button-shot','assets/DCBF27F8-AB29-4A67-92E1-6CECD794CC17.png');this.load.image('cubicle-floor','assets/0AFADAED-2838-4C66-9E5C-879B3C1CF942.png');this.load.image('office-scroll','assets/4ABB6275-B683-42F7-BA5A-CD1033DD8B3C.png');this.load.image('piper-crt','assets/10868DF0-00EE-4DC1-9ABF-91FB0C8AD622.png')}
+ openTerminal(){
+  if(this.terminalOpen)return;
+  this.terminalOpen=true;move=0;window.openCRTInterface();
+  this.terminalPrompt.setVisible(false);
+  this.terminalShade.setVisible(true).setAlpha(0);
+  this.terminalZoom.setVisible(true).setAlpha(0);
+
+  this.tweens.add({targets:this.terminalShade,alpha:.94,duration:600,ease:'Sine.easeInOut'});
+  this.tweens.add({targets:[this.terminalZoom],alpha:1,duration:600,ease:'Sine.easeInOut'});
+ }
+ closeTerminal(){
+  if(!this.terminalOpen)return;
+  this.terminalOpen=false;window.closeCRTInterface();
+  if(alarmStarted)startDangerMusic();
+  if(alarmStarted)setTimeout(()=>{if(this.scene.isActive()){this.scene.stop('Lab');this.scene.start('Corridor');}},300);
+  this.tweens.add({targets:[this.terminalShade,this.terminalZoom],alpha:0,duration:240,onComplete:()=>{
+   this.terminalShade.setVisible(false);this.terminalZoom.setVisible(false);
+  }});
+ }
+ create(){
+  this.cameras.main.setBackgroundColor('#02050b');
+  this.lobbyTransition=null;
+  this.elevatorShot=this.add.image(this.scale.width/2,this.scale.height/2,'elevator-approach').setOrigin(.5).setDepth(215).setAlpha(0).setVisible(false);
+  this.elevatorWalker=null;
+  this.buttonShot=this.add.image(this.scale.width/2,this.scale.height/2,'elevator-button-shot').setOrigin(.5).setDepth(230).setVisible(false).setAlpha(0);
+  this.cubicleShot=this.add.image(0,0,'cubicle-floor').setOrigin(.5).setDepth(241).setVisible(false);
+  this.officeScroll=this.add.image(0,0,'office-scroll').setOrigin(0,.5).setDepth(255).setVisible(false);
+  this.officeRedFlash=this.add.rectangle(0,0,1,1,0xff1025,.0).setOrigin(0).setDepth(275).setVisible(false).setBlendMode(Phaser.BlendModes.ADD);
+  this.officeTraveler=this.add.image(0,0,'hero-sheet').setOrigin(.5,1).setDepth(260).setVisible(false);
+  this.officeDistance=0;
+  this.officeEntryX=null;this.terminalOpen=false;
+  this.piperTerminal=this.add.image(0,0,'piper-crt').setOrigin(.5,1).setDepth(259).setVisible(false);
+  this.terminalPrompt=this.add.text(0,0,'INTERACT  ›',{fontFamily:'monospace',fontSize:'16px',color:'#91ffb1',backgroundColor:'#05160de8',padding:{x:12,y:9}}).setOrigin(.5).setDepth(270).setVisible(false).setInteractive();
+  this.terminalPrompt.on('pointerdown',()=>this.openTerminal());
+  this.terminalShade=this.add.rectangle(0,0,1,1,0x020b07).setOrigin(0).setDepth(300).setVisible(false);
+  this.terminalZoom=this.add.image(0,0,'piper-crt').setOrigin(.5).setDepth(301).setVisible(false);
+  // The HTML terminal provides the single BACK control; no duplicate Phaser button.
+  
+  // Soft radial light texture, composited over the static illustrated lamps.
+  const lightCanvas=document.createElement('canvas');lightCanvas.width=256;lightCanvas.height=256;
+  const lightCtx=lightCanvas.getContext('2d'),grad=lightCtx.createRadialGradient(128,128,0,128,128,126);
+  grad.addColorStop(0,'rgba(255,195,105,.32)');grad.addColorStop(.3,'rgba(255,165,75,.17)');grad.addColorStop(1,'rgba(255,150,65,0)');
+  lightCtx.fillStyle=grad;lightCtx.fillRect(0,0,256,256);
+  this.textures.addCanvas('office-lamp-glow',lightCanvas);
+  // Dedicated transparent green glow, not a tinted amber lamp texture.
+  const crtLight=document.createElement('canvas');crtLight.width=256;crtLight.height=256;
+  const gc=crtLight.getContext('2d'),gg=gc.createRadialGradient(128,128,0,128,128,127);
+  gg.addColorStop(0,'rgba(65,255,125,.28)');gg.addColorStop(.36,'rgba(30,230,105,.10)');gg.addColorStop(1,'rgba(30,230,105,0)');
+  gc.fillStyle=gg;gc.fillRect(0,0,256,256);
+  this.textures.addCanvas('office-crt-glow',crtLight);
+  this.piperGlow=this.add.image(0,0,'office-crt-glow').setDepth(258).setBlendMode(Phaser.BlendModes.ADD).setVisible(false);
+  this.officeLamps=[.165,.37,.635,.865].map(x=>this.add.image(0,0,'office-lamp-glow').setDepth(258).setBlendMode(Phaser.BlendModes.ADD).setVisible(false));
+  this.blackFade=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(245).setVisible(false);
+  this.doorLeft=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(250).setVisible(false);
+  this.doorRight=this.add.rectangle(0,0,1,1,0x000000).setOrigin(0).setDepth(250).setVisible(false);
+  this.lobbyInterior=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-interior').setOrigin(.5).setDepth(210).setAlpha(0).setVisible(false);
+  this.lobbyImage=this.add.image(this.scale.width/2,this.scale.height/2,'lobby-entrance').setOrigin(.5).setDepth(200).setAlpha(0).setVisible(false);
+  this.lobbyButton=this.add.text(this.scale.width/2,this.scale.height-75,'ENTER LOBBY  ›',{fontFamily:'system-ui',fontSize:'15px',color:'#ffe7b6',backgroundColor:'#17202bdd',padding:{x:16,y:12}}).setOrigin(.5).setDepth(220).setInteractive({useHandCursor:true}).setVisible(false);
+  this.lobbyButton.on('pointerdown',()=>{unlockEffects();if(this.lobbyTransition||entrance.phase!=='stairs-hold')return;this.lobbyTransition={elapsed:0,doorPlayed:false,stepsStarted:false,clickPlayed:false,dingPlayed:false};this.lobbyButton.setVisible(false);if(!audioEnabled){audioEnabled=true;[music,rainAudio,chimesAudio].forEach(playSafe);musicToggle.textContent='♫ Pause audio';}playSafe(jazzAudio);});
+  if(['terminal','office'].includes(new URLSearchParams(location.search).get('start'))){
+   this.lobbyTransition={elapsed:4.5,doorPlayed:true,stepsStarted:true,clickPlayed:true,dingPlayed:true};
+   this.checkpointInitialized=true;entrance.phase='stairs-hold';entrance.elapsed=1;move=0;
+  }
+  scenes.forEach((_,i)=>{
+   const key='scene'+i;makeEmission(this,key);
+   // Precompute a compact emissive color field once, never read pixels during rendering.
+   const src=this.textures.get(key).getSourceImage(),field=document.createElement('canvas');
+   field.width=180;field.height=Math.round(180*src.height/src.width);
+   const fg=field.getContext('2d',{willReadFrequently:true});fg.drawImage(src,0,0,field.width,field.height);
+   lightFields.push({width:field.width,height:field.height,data:fg.getImageData(0,0,field.width,field.height).data});
+   const original=this.add.image(0,0,key).setOrigin(0);
+   const emission=this.add.image(0,0,key+'-emission').setOrigin(0).setBlendMode(Phaser.BlendModes.ADD);
+   // Phaser's WebGL post-processing bloom keeps the original scene unfiltered and legible.
+   if(emission.postFX&&emission.postFX.addBloom){
+    const bloom=emission.postFX.addBloom(0xffffff,1,1,2,1.1);
+    glows.push({emission,bloom});
+   }else{
+    glows.push({emission,bloom:null});
+    status.textContent='WebGL bloom unavailable: showing emission only';
+   }
+   sceneImages.push({original,emission});
+   if(i===1){
+    // Car silhouette traced from the supplied full Tokyo image (1536 x 512).
+    // Geometry mask reveals ONLY the existing painted car, never a rectangular patch.
+    const car=this.add.image(0,0,key).setOrigin(0).setDepth(25);
+    const maskShape=this.make.graphics({x:0,y:0},false);
+    maskShape.fillStyle(0xffffff,1);
+    const outline=[
+      [1360,438],[1370,417],[1390,400],[1410,385],[1441,376],
+      [1460,370],[1500,371],[1536,379],[1536,495],
+      [1381,495],[1367,486],[1360,464]
+    ];
+    maskShape.fillPoints(outline.map(p=>new Phaser.Geom.Point(p[0],p[1])),true);
+    car.setMask(maskShape.createGeometryMask());
+    foregroundCar={car,maskShape,outline};
+   }
+   // Phaser-native cropped Image strips and Tweens. Only existing pavement pixels
+   // are reused, with no generated reflection art or custom rendering pipeline.
+   // Locate distinct, saturated light reflections in the actual lower artwork.
+   // Each Phaser Image is a small masked reflection, not a full-width pavement strip.
+   const reflectCanvas=document.createElement('canvas');
+   reflectCanvas.width=180;reflectCanvas.height=field.height;
+   const rc=reflectCanvas.getContext('2d',{willReadFrequently:true});
+   rc.drawImage(src,0,0,180,field.height);
+   const data=rc.getImageData(0,0,180,field.height).data;
+   const spots=[];
+   for(let y=Math.floor(field.height*.74);y<field.height*.97;y+=3)
+    for(let x=8;x<172;x+=3){
+     const k=(y*180+x)*4,r=data[k],g=data[k+1],b=data[k+2];
+     const high=Math.max(r,g,b),low=Math.min(r,g,b);
+     if(high<108||high-low<44)continue;
+     const score=(high-low)*(high/255);
+     if(spots.every(s=>Math.hypot((s.x-x)*.7,(s.y-y)*1.8)>18))
+      spots.push({x,y,score});
+    }
+   spots.sort((a,b)=>b.score-a.score);
+   spots.slice(0,5).forEach((spot,j)=>{
+    const radiusX=11,radiusY=7;
+    const sx=Math.max(0,Math.round((spot.x-radiusX)/180*src.width));
+    const sy=Math.max(0,Math.round((spot.y-radiusY)/field.height*src.height));
+    const sw=Math.min(src.width-sx,Math.round(radiusX*2/180*src.width));
+    const sh=Math.min(src.height-sy,Math.round(radiusY*2/field.height*src.height));
+    if(sw<2||sh<2)return;
+    const texture='reflection-patch-'+i+'-'+j;
+    const canvas=document.createElement('canvas');canvas.width=sw;canvas.height=sh;
+    const ctx=canvas.getContext('2d');ctx.drawImage(src,sx,sy,sw,sh,0,0,sw,sh);
+    const pixels=ctx.getImageData(0,0,sw,sh);
+    for(let p=0;p<pixels.data.length;p+=4){
+     const r=pixels.data[p],g=pixels.data[p+1],b=pixels.data[p+2];
+     const hi=Math.max(r,g,b),lo=Math.min(r,g,b);
+     const px=(p/4)%sw,py=Math.floor((p/4)/sw);
+     const ellipse=Math.max(0,1-Math.pow((px-sw/2)/(sw*.5),2)-Math.pow((py-sh/2)/(sh*.5),2));
+     pixels.data[p+3]=Math.round(Math.min(180,Math.max(0,(hi-lo-22)*2))*Math.sqrt(ellipse));
+    }
+    ctx.putImageData(pixels,0,0);
+    this.textures.addCanvas(texture,canvas);
+    const sprite=this.add.image(0,0,texture).setOrigin(0).setDepth(2).setBlendMode(Phaser.BlendModes.ADD);
+    reflectionBands.push({strip:sprite,sceneIndex:i,x:sx/src.width,y:sy/src.height,w:sw/src.width,h:sh/src.height,j});
+    this.tweens.add({targets:sprite,alpha:{from:.26,to:.65},duration:1100+j*470+i*230,
+     yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+   });
+   // A few independent neon fixtures, anchored to actual saturated emissive pixels.
+   // Their source art remains untouched; only the bloom contribution fluctuates.
+   const pixels=fg.getImageData(0,0,field.width,field.height).data;
+   // Four isolated real emissive pixels across the two original scenes.
+   // Preserve the first approved fixture and add three spatially separated bulbs.
+   const candidates=[];
+   for(let y=10;y<field.height*.65;y+=2)for(let x=10;x<field.width-10;x+=2){
+    const k=(y*field.width+x)*4,r=pixels[k],g=pixels[k+1],b=pixels[k+2];
+    const peak=Math.max(r,g,b),chroma=peak-Math.min(r,g,b);
+    if(peak>185&&chroma>95)candidates.push({x,y,score:peak+chroma});
+   }
+   candidates.sort((a,b)=>b.score-a.score);
+   const count=i===0?2:2;
+   const chosen=[];
+   for(const c of candidates){
+    if(chosen.every(s=>Math.hypot(s.x-c.x,s.y-c.y)>field.width*.34)){
+     chosen.push(c);if(chosen.length===count)break;
+    }
+   }
+   chosen.forEach((c,j)=>{
+    const id=i*2+j,radius=3,clip=document.createElement('canvas');
+    clip.width=radius*2;clip.height=radius*2;
+    const cg=clip.getContext('2d');
+    const source=this.textures.get(key+'-emission').getSourceImage();
+    const sx=c.x/field.width*src.width,sy=c.y/field.height*src.height;
+    const sw=radius*2/field.width*src.width,sh=radius*2/field.height*src.height;
+    cg.drawImage(source,sx-sw/2,sy-sh/2,sw,sh,0,0,clip.width,clip.height);
+    const tex='single-flicker-bulb-'+id;this.textures.addCanvas(tex,clip);
+    const lamp=this.add.image(0,0,tex).setOrigin(.5).setBlendMode(Phaser.BlendModes.ADD).setDepth(3);
+    if(lamp.postFX?.addBloom)lamp.postFX.addBloom(0xffffff,1,1,2,.65);
+    flickerLights.push({lamp,sceneIndex:i,x:c.x/field.width,y:c.y/field.height,radius,id});
+   });
+  });
+  CROWD_PATHS.forEach((_,i)=>{
+   const source=this.textures.get('crowd'+i).getSourceImage();
+   const extracted=extractPedestrianFrames(source);
+   extracted.forEach((frame,j)=>{const key='walker-'+i+'-'+j;this.textures.addCanvas(key,frame.image);crowdTextures[i].push({...frame,key})});
+  });
+  // Approved standalone turn: eight fixed 224x560 RGBA cells. Do not run heuristic row detection.
+  const turnImage=this.textures.get('turn-sheet').getSourceImage();
+  if(turnImage.naturalWidth===1792&&turnImage.naturalHeight===560){
+   const sheet=document.createElement('canvas');sheet.width=1792;sheet.height=560;
+   const sc=sheet.getContext('2d',{willReadFrequently:true});sc.drawImage(turnImage,0,0);
+   const alpha=sc.getImageData(0,0,1792,560).data;
+   let clear=0;for(let y=0;y<560;y+=16)for(let x=0;x<1792;x+=16)if(alpha[(y*1792+x)*4+3]<10)clear++;
+   if(clear>40){
+    for(let i=0;i<8;i++){
+     const canvas=document.createElement('canvas');canvas.width=224;canvas.height=560;
+     canvas.getContext('2d').drawImage(sheet,i*224,0,224,560,0,0,224,560);
+     const key='approved-turn-'+i;this.textures.addCanvas(key,canvas);
+     turnFrames.push({key,width:224,height:560,anchorX:112,anchorY:560});
+    }
+    console.info('V85: approved eight-frame turn loaded');
+   }else console.error('V85: turn PNG has no transparent samples');
+  }else console.error('V85: turn sheet dimensions differ from approved 1792x560',turnImage.naturalWidth,turnImage.naturalHeight);
+  const candidate=extractEntranceFrames(this,this.textures.get('entrance-sheet').getSourceImage());
+  if(candidate){entranceFrames=candidate;entranceReady=true}
+  const heroSource=this.textures.get('hero-sheet').getSourceImage();
+  heroFrames=extractSpriteFrames(heroSource);
+  // Approved Pixel Lab frames: only the street/office walking protagonist changes.
+  // All entrance/turn/stairs and other scenes keep their existing animation sheets.
+  if(pixelHeroAssets){
+   const frames=Array.from({length:8},(_,i)=>{const key='pixel-walk-'+i;const image=this.textures.get(key).getSourceImage();return{key,width:image.width,height:image.height,anchorX:image.width/2,anchorY:image.height}});
+   if(frames.every(f=>f.width>0&&f.height>0))heroFrames=frames;
+  }
+
+  heroFrames.forEach((frame,i)=>{const key='hero-frame-'+i;this.textures.addCanvas(key,frame.image);frame.key=key});
+  if(heroFrames.length){
+   heroActor=this.add.image(0,0,heroFrames[1].key).setOrigin(0,0).setDepth(20);
+   heroLight=this.add.image(0,0,heroFrames[1].key).setOrigin(0,0).setDepth(21).setAlpha(0);
+   this.elevatorWalker=this.add.image(0,0,heroFrames[1].key).setOrigin(.5,1).setDepth(225).setVisible(false);
+  }
+  pedestrians.forEach(p=>{
+   const f=crowdTextures[p.type][0];if(!f)return;
+   const actor=this.add.image(0,0,f.key).setOrigin(0,0).setDepth(20);
+   actor.setAlpha(1);
+   crowdActors.push({p,actor,glowStrength:0,glowColor:[0,0,0]});
+  });
+  // A single Phaser-native color veil unifies background, sprites and foreground.
+  // It sits above the artwork but accepts no input, preserving all existing interactions.
+  atmosphereVeil=this.add.rectangle(0,0,this.scale.width,this.scale.height,0x081629,.24)
+   .setOrigin(0).setDepth(40);
+  // Screen-space rain: distant fine streaks behind people, sparse close drops in front.
+  const seeded=(n)=>{const v=Math.sin(n*127.1+53.7)*43758.5453;return v-Math.floor(v)};
+  [ {count:105,depth:16,length:7,alpha:.15,speed:360,width:.65},
+    {count:42,depth:26,length:13,alpha:.24,speed:560,width:.85}
+  ].forEach((layer,li)=>{
+   const graphics=this.add.graphics().setDepth(layer.depth);
+   const drops=Array.from({length:layer.count},(_,j)=>({
+    x:seeded(j*3+li*1100)*1.3-.15,y:seeded(j*3+1+li*1100)*1.3-.15,
+    speed:layer.speed*(.7+seeded(j*3+2+li*1100)*.65),
+    drift:22+seeded(j*7+li*800)*24,length:layer.length*(.65+seeded(j*11+li*600)*.8)
+   }));
+   rainLayers.push({graphics,drops,layer});
+  });
+  this.scale.on('resize',size=>{viewport={w:size.width,h:size.height}});
+  status.textContent=glows.every(g=>g.bloom)?'Phaser WebGL bloom active · original art preserved':'Phaser running · bloom unavailable';
+ }
+ update(time,dt){
+  const h=this.scale.height,w=this.scale.width;
+  this.lobbyButton.setPosition(w/2,h-75).setVisible(!this.lobbyTransition&&entrance.phase==='stairs-hold');
+  if(this.lobbyTransition){
+   this.lobbyTransition.elapsed=Math.min(4.5,this.lobbyTransition.elapsed+dt/2600);
+   const progress=Phaser.Math.Easing.Sine.InOut(Math.min(1,this.lobbyTransition.elapsed/.55));
+   window.tokyoLobbyProgress=progress;
+   if(audioEnabled){
+    const fade=Phaser.Math.Clamp(progress/.85,0,1);
+    music.volume=.6*(1-fade);rainAudio.volume=.35*(1-fade);chimesAudio.volume=.22*(1-fade);
+    jazzAudio.volume=window.tokyoOfficeEntered?0:.36*fade;
+    if(progress>.40&&!this.lobbyTransition.stepsStarted){this.lobbyTransition.stepsStarted=true;/* no walking sequence */}
+    stepsAudio.volume=.32*Phaser.Math.Clamp((progress-.32)/.3,0,1);
+    if(progress>.20&&!this.lobbyTransition.doorPlayed){this.lobbyTransition.doorPlayed=true;playSafe(doorAudio)}
+    if(progress>=1){[music,rainAudio,chimesAudio,stepsAudio].forEach(a=>{a.pause();a.currentTime=0;});}
+   }
+   // Skip the two globe/lobby montage images. Go directly to the elevator corridor.
+   // Static elevator-bank establishing shot. No traveler or walk animation.
+   const elevatorT=Phaser.Math.Clamp(this.lobbyTransition.elapsed/.35,0,1);
+   if(elevatorT>0){
+    const im=this.textures.get('elevator-approach').getSourceImage();
+    const cover=Math.max(w/im.width,h/im.height);
+    this.elevatorShot.setVisible(true).setPosition(w/2,h/2)
+     .setDisplaySize(im.width*cover,im.height*cover)
+     .setAlpha(Phaser.Math.Easing.Sine.InOut(elevatorT));
+   }
+   // Shot 9: cut in to the approved hand/button close-up after the walk finishes.
+   const buttonT=Phaser.Math.Clamp((this.lobbyTransition.elapsed-.55)/.20,0,1);
+   if(buttonT>0){
+    const im=this.textures.get('elevator-button-shot').getSourceImage();
+    const fit=Math.min(w/im.width,h/im.height);
+    // Keep the entire approved hand and call panel in frame on portrait phones.
+    // The previous cover fit cropped away most of the hand.
+    this.buttonShot.setVisible(true).setPosition(w/2,h/2).setDisplaySize(im.width*fit,im.height*fit).setAlpha(Phaser.Math.Easing.Sine.InOut(buttonT));
+    if(audioEnabled&&buttonT>=.8&&!this.lobbyTransition.clickPlayed){
+     this.lobbyTransition.clickPlayed=true;playEffect('click',clickAudio);
+    }
+    if(audioEnabled&&this.lobbyTransition.elapsed>=.55+4/2.6&&!this.lobbyTransition.dingPlayed){
+     this.lobbyTransition.dingPlayed=true;
+     // Play the original recorded elevator bell four seconds after Shot 9 first appears.
+     playEffect('ding',dingAudio);
+    }
+   }
+   // After the recorded ding, fade to black. Hold, then open two black
+   // elevator-door panels to reveal the approved cubicle floor.
+   const fadeStart=2.30,fadeEnd=2.65,doorsStart=3.05,doorsEnd=3.95;
+   if(this.lobbyTransition.elapsed>=fadeStart){
+    const fade=Phaser.Math.Clamp((this.lobbyTransition.elapsed-fadeStart)/(fadeEnd-fadeStart),0,1);
+    this.blackFade.setVisible(true).setPosition(0,0).setSize(w,h).setAlpha(fade);
+   }
+   if(this.lobbyTransition.elapsed>=doorsStart){
+    const im=this.textures.get('cubicle-floor').getSourceImage();
+    const cover=Math.max(w/im.width,h/im.height);
+    this.cubicleShot.setVisible(true).setPosition(w/2,h/2).setDisplaySize(im.width*cover,im.height*cover);
+    this.blackFade.setVisible(false);
+    const t=Phaser.Math.Easing.Sine.InOut(Phaser.Math.Clamp((this.lobbyTransition.elapsed-doorsStart)/(doorsEnd-doorsStart),0,1));
+    this.doorLeft.setVisible(t<1).setPosition(0,0).setSize(w*(1-t)/2+1,h);
+    this.doorRight.setVisible(t<1).setPosition(w*(1+t)/2,0).setSize(w*(1-t)/2+1,h);
+   }
+   // Preserve the approved elevator-door reveal, then enter the playable pixel-art floor.
+   const officeStart=4.18;
+   if(this.lobbyTransition.elapsed>=officeStart){
+    window.tokyoOfficeEntered=true;
+    if(audioEnabled&&!officeAudioStarted){
+     officeAudioStarted=true;
+     jazzAudio.pause();stepsAudio.pause();
+     officeAudio.volume=.40;playSafe(officeAudio);
+    }
+    this.officeRedFlash.setVisible(!!window.tokyoAlarmActive).setPosition(0,0).setSize(w,h);
+    if(window.tokyoAlarmActive){
+     const pulse=Math.pow(Math.max(0,Math.sin(time*.008)),2);
+     this.officeRedFlash.setAlpha(.05+.29*pulse);
+    }
+    const image=this.textures.get('office-scroll').getSourceImage();
+    const worldHeight=h,worldWidth=image.width*h/image.height;
+    const maxScroll=Math.max(0,worldWidth-w);
+    const terminalWorldX=worldWidth*.78;
+    // Stop at the desk instead of allowing the player to walk through it.
+    const stopDistance=Math.max(0,terminalWorldX-w*.48-w*.15);
+    if(!this.terminalCheckpointPlaced){
+     const start=new URLSearchParams(location.search).get('start');
+     if(start==='terminal'){
+      this.terminalCheckpointPlaced=true;
+      this.officeDistance=Phaser.Math.Clamp(terminalWorldX-w*.66,0,maxScroll);
+      this.officeEntryX=w*.48;
+     }else if(start==='office'){
+      // Office checkpoint is the elevator threshold, not the CRT desk.
+      this.terminalCheckpointPlaced=true;
+      this.officeDistance=0;
+      this.officeEntryX=-w*.16;
+     }
+    }
+    const requestedDistance=this.officeDistance+(this.terminalOpen?0:(this.officeEntryX!==null&&this.officeEntryX<w*.48?0:move*dt*.22));
+    this.officeDistance=Phaser.Math.Clamp(requestedDistance,0,Math.min(maxScroll,stopDistance));
+    this.officeScroll.setVisible(true).setPosition(-this.officeDistance,h/2).setDisplaySize(worldWidth,worldHeight);
+    // Enter from beyond the left edge, then settle into the scrolling follow position.
+    if(this.officeEntryX===null)this.officeEntryX=-w*.16;
+    const followX=w*.48;
+    const advance=this.terminalOpen?0:move>0?dt*.22:move<0?-dt*.22:0;
+    const entryStop=Math.max(-w*.16,Math.min(followX,terminalWorldX-this.officeDistance-w*.15));
+    this.officeEntryX=Phaser.Math.Clamp(this.officeEntryX+advance,-w*.16,entryStop);
+    const heroX=this.officeEntryX,heroY=h*.88;
+    // Terminal is a separate sprite, anchored to the office world rather than the camera.
+    const terminalX=worldWidth*.78-this.officeDistance;
+    const terminalHeight=h*.195;
+    const terminalSource=this.textures.get('piper-crt').getSourceImage();
+    this.piperTerminal.setVisible(true).setPosition(terminalX,h*.82)
+     .setDisplaySize(terminalHeight*terminalSource.width/terminalSource.height,terminalHeight);
+    this.piperGlow.setVisible(true).setPosition(terminalX,h*.705)
+     .setDisplaySize(w*.30,h*.19).setAlpha(.30+.035*Math.sin(time*.004));
+    const lights=[.165,.37,.635,.865];
+    let illumination=0;
+    lights.forEach((x,i)=>{
+     const lampX=x*worldWidth-this.officeDistance;
+     const distance=Math.abs(heroX-lampX);
+     const strength=Math.exp(-Math.pow(distance/(w*.23),2));
+     illumination=Math.max(illumination,strength);
+     this.officeLamps[i].setVisible(true).setPosition(lampX,h*.59)
+      .setDisplaySize(w*.46,h*.49).setAlpha(.55);
+    });
+    const nearTerminal=Math.abs(heroX-terminalX)<w*.35&&heroX>=0;
+    this.terminalPrompt.setVisible(nearTerminal&&!this.terminalOpen)
+     .setPosition(Phaser.Math.Clamp(terminalX,90,w-90),h*.58);
+    if(this.terminalOpen){
+     this.terminalShade.setPosition(0,0).setSize(w,h);
+     const zs=this.textures.get('piper-crt').getSourceImage();
+     const zh=Math.min(h*.87,w*.94*zs.height/zs.width);
+     this.terminalZoom.setPosition(w/2,h*.49).setDisplaySize(zh*zs.width/zs.height,zh);
+
+    }
+    const greenStrength=.28*Math.exp(-Math.pow((heroX-terminalX)/(w*.25),2));
+    if(heroFrames.length){
+     const frame=heroFrames[move?Math.floor(time/105)%heroFrames.length:1];
+     const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575))*1.5;
+     const shade=Math.round(90+145*illumination);
+     const warmth=Math.round(95+125*illumination);
+     const blue=Math.round(110+50*illumination);
+     this.officeTraveler.setVisible(true).setTexture(frame.key).setPosition(heroX,heroY)
+      .setDisplaySize(frame.width*heroHeight/frame.height,heroHeight)
+      .setTint(Phaser.Display.Color.GetColor(
+       Math.round(shade*(1-.18*greenStrength)),
+       Math.min(255,Math.round(warmth+28*greenStrength)),
+       Math.round(blue*(1-.08*greenStrength)))).setAlpha(.97);
+     this.officeTraveler.setFlipX(move<0);
+    }
+   }
+  }
+  if(atmosphereVeil)atmosphereVeil.setSize(w,h);
+  rainLayers.forEach(({graphics,drops,layer})=>{
+   graphics.clear();graphics.lineStyle(layer.width,0xb2c8db,layer.alpha);
+   for(const drop of drops){
+    const y=((drop.y*h+time*.001*drop.speed)%(h+70)+h+70)%(h+70)-35;
+    const x=((drop.x*w+time*.001*drop.drift)%(w+60)+w+60)%(w+60)-30;
+    graphics.lineBetween(x,y,x-1.5,y+drop.length);
+   }
+  });
+  const sizes=sceneImages.map(pair=>pair.original.width*h/pair.original.height);
+  const total=sizes.reduce((a,b)=>a+b,0);
+  const heroX=Math.min(w*.4,w-74);
+  const sceneStart=sizes[0],sceneWidth=sizes[1];
+  const stairsStart=sceneStart+sceneWidth*(1050/1536);
+  const doorWorld=sceneStart+sceneWidth*(1170/1536); // top stair landing, short of the glass doors
+  // Default audition spawn: the approved top-stair checkpoint. ?start=beginning restores the full approach.
+  if(!this.checkpointInitialized){
+   this.checkpointInitialized=true;
+   if(new URLSearchParams(location.search).get('start')!=='beginning'){
+    travel=Phaser.Math.Clamp(stairsStart-heroX,0,Math.max(0,total-w));
+    entrance.phase='stairs-hold';entrance.elapsed=1;move=0;
+   }
+  }
+  const walkingSpeed=Math.max(165,Math.min(230,h*.24));
+  if(entrance.phase==='walk'){
+   const next=Phaser.Math.Clamp(travel+move*walkingSpeed*dt/1000,0,Math.max(0,total-w));
+   if(move>0&&travel+heroX<stairsStart&&next+heroX>=stairsStart){
+    travel=Phaser.Math.Clamp(stairsStart-heroX,0,Math.max(0,total-w));
+    entrance.phase=turnFrames.length===8?'turn':'stairs';entrance.elapsed=0;move=0;
+   }else travel=next;
+   if(move)walkClock+=dt*.01;
+  }else if(entrance.phase==='turn'){
+   entrance.elapsed=Math.min(1,entrance.elapsed+dt/1000);
+   if(entrance.elapsed>=1){entrance.phase='stairs';entrance.elapsed=0}
+  }else if(entrance.phase==='stairs'){
+   entrance.elapsed=Math.min(1,entrance.elapsed+dt/3700);
+   if(entrance.elapsed>=1){entrance.phase='stairs-hold';entrance.elapsed=1;}
+  }
+  if(entrance.phase==='crouch'&&entranceReady)entrance.elapsed=Math.min(1,entrance.elapsed+dt/900);
+  let x=-travel;
+  sceneImages.forEach((pair,i)=>{
+   for(const image of [pair.original,pair.emission])image.setPosition(x,0).setDisplaySize(sizes[i],h);
+   x+=sizes[i];
+  });
+  if(foregroundCar){
+   const sceneIndex=1,left=sizes[0]-travel,width=sizes[1];
+   foregroundCar.car.setPosition(left,0).setDisplaySize(width,h);
+   // Graphics geometry mask shares the scene's scaling and scrolling.
+   foregroundCar.maskShape.setPosition(left,0).setScale(width/1536,h/512);
+  }
+  reflectionBands.forEach(({strip,sceneIndex,x,y,w:rw,h:rh,j})=>{
+   const left=sizes.slice(0,sceneIndex).reduce((a,b)=>a+b,0)-travel;
+   const drift=Math.sin(time*.0012+j*2.3+sceneIndex)*2.7;
+   strip.setPosition(left+x*sizes[sceneIndex]+drift,y*h)
+    .setDisplaySize(rw*sizes[sceneIndex],rh*h);
+  });
+  glows.forEach(g=>{g.emission.setAlpha(Math.min(1,.53*luminosity));if(g.bloom)g.bloom.strength=1.1*luminosity});
+  // Independent schedules, isolated to one bulb apiece. Fixture zero retains V85 timing.
+  flickerLights.forEach(f=>{
+   const span=sizes[f.sceneIndex],left=sizes.slice(0,f.sceneIndex).reduce((a,b)=>a+b,0)-travel;
+   const t=time*.001;
+   let intensity=.42;
+   if(f.id===0){
+    const cycle=t%19.7;
+    if(cycle>14.2&&cycle<14.65)intensity=Math.sin((cycle-14.2)*87)>0?.06:.52;
+   }else if(f.id===1){
+    const cycle=t%14.3;
+    if((cycle>9.12&&cycle<9.19)||(cycle>9.27&&cycle<9.34))intensity=.055;
+   }else if(f.id===2){
+    const cycle=t%29.7;
+    if(cycle>21.1&&cycle<22.35)intensity=.42-(Math.sin((cycle-21.1)/1.25*Math.PI)*.25);
+   }else{
+    const cycle=t%37.1;
+    if(cycle>31.4&&cycle<31.52)intensity=.035;
+   }
+   f.lamp.setPosition(left+f.x*span,f.y*h)
+    .setDisplaySize(f.radius*2/180*span,f.radius*2/lightFields[f.sceneIndex].height*h)
+    .setAlpha(intensity*luminosity);
+  });
+  const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575)),feetY=h*.845+18,t=time*.001;
+  if(heroActor&&heroFrames.length){
+   const stairT=entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?0:entrance.phase==='crouch'||entrance.phase==='stairs-hold'?1:Phaser.Math.Easing.Sine.InOut(entrance.elapsed);
+   const crouched=entrance.phase==='crouch';
+   const frames=(entrance.phase==='turn'||entrance.phase==='turn-hold')&&turnFrames.length===8?turnFrames:(entrance.phase==='stairs'||entrance.phase==='stairs-hold')&&entranceReady&&entranceFrames.stairs.length?entranceFrames.stairs:turnFrames.length===8?turnFrames:heroFrames;
+   const frame=entrance.phase==='walk'?heroFrames[move?Math.floor(walkClock)%heroFrames.length:1]:
+    frames[Math.min(frames.length-1,Math.floor(entrance.elapsed*frames.length))];
+   const heroHeight=Math.max(81.648,Math.min(161.595,h*.1828575));
+   const baseScale=heroHeight/390;
+   const referenceHeight=entrance.phase==='walk'?frame.height:frames===turnFrames?560:frame.height;
+   const scale=heroHeight/Math.max(1,referenceHeight)*(1-.16*stairT);
+   const footWorld=stairsStart+(doorWorld-stairsStart)*stairT;
+   const pxWorld=entrance.phase==='walk'?travel+heroX:(entrance.phase==='turn'||entrance.phase==='turn-hold')?stairsStart:footWorld;
+   const feet=(entrance.phase==='walk'||entrance.phase==='turn'||entrance.phase==='turn-hold'?feetY:h*(.85-.115*stairT))+(entrance.phase==='stairs-hold'?Math.max(2,h*.003):0);
+   const crouchFactor=1;
+   const drawX=pxWorld-travel-frame.anchorX*scale;
+   const drawY=feet-frame.anchorY*scale*crouchFactor;
+   for(const actor of [heroActor,heroLight]){
+    actor.setTexture(frame.key).setPosition(drawX,drawY)
+     .setDisplaySize(frame.width*scale,frame.height*scale*crouchFactor)
+     .setFlipX(entrance.phase==='walk'&&move<0);
+   }
+   heroActor.setTint(0xb5bfcb);
+   const sample=sampleNeon(pxWorld,feet-heroHeight*.8*scale/baseScale,sizes,h);
+   smoothLight(heroLighting,sample,dt);
+   heroLight.setTint(Phaser.Display.Color.GetColor(...heroLighting.color.map(Math.round)))
+    .setAlpha(heroLighting.strength*.48);
+  }
+  crowdActors.forEach(entry=>{const {p,actor}=entry;
+   const frames=crowdTextures[p.type],f=frames[Math.floor(t*(6.5+p.speed*.025)+p.step)%frames.length];
+   const range=w+heroHeight*2,worldTravel=t*p.speed+p.phase*range+(p.flip?travel:-travel),progress=((worldTravel%range)+range)%range;
+   const x=p.flip?w+heroHeight-progress:progress-heroHeight,scale=heroHeight*1.15/Math.max(1,f.height);
+   // When the protagonist takes the stairs, nearby walkers gently clear his sightline.
+   const clearing=entrance.phase==='walk'?0:1;
+   const targetX=doorWorld-travel;
+   const distance=x-targetX;
+   const proximity=Math.max(0,1-Math.abs(distance)/(w*.62));
+   const direction=distance<0?-1:1;
+   const dispersal=direction*clearing*proximity*Math.max(280,w*.7);
+   const px=x+dispersal-f.anchorX*scale,py=feetY-f.anchorY*scale;
+   // Stable per-walker depth: alternate near and far lanes without changing approved paths.
+   // The hero remains at depth 20/21; near-lane walkers occlude him, far-lane walkers pass behind.
+   const near=p.type===3||p.type===4||pedestrians.indexOf(p)%3===0;
+   actor.setDepth(clearing&&proximity>.01?12:(near?22:18));
+   actor.setTexture(f.key).setPosition(px,py).setDisplaySize(f.width*scale,f.height*scale);
+   const sample=sampleNeon(x+travel,feetY-heroHeight*.8,sizes,h);
+   smoothLight(entry,sample,dt);
+   // Single opaque sprite, no transparent duplicate. Modulate the dark silhouette
+   // toward the local neon hue while retaining its alpha and frame boundaries.
+   const strength=Math.min(.62,entry.glowStrength);
+   const base=(p.type===3||p.type===4)?65:91;
+   const [r,g,b]=entry.glowColor;
+   const color=Phaser.Display.Color.GetColor(
+    Math.min(255,Math.round(base+r*strength*.62)),
+    Math.min(255,Math.round(base+g*strength*.62)),
+    Math.min(255,Math.round(base+b*strength*.62))
+   );
+   actor.setTint(color).setAlpha(1);
+  });
+ }
+}
+
+const corridorVoiceNames=[
+ '05_37_39','05_38_21','05_38_57','05_39_39','05_40_15','05_40_48'
+].map(t=>'assets/ElevenLabs_2026-10-09T'+t+'_Piper(speaker)_eleven_v4.mp3');
+let corridorVoice=null,corridorSpoken=new Set(),corridorButtons={jump:false,crouch:false};
+function corridorSay(n){
+ if(corridorSpoken.has(n))return;
+ corridorSpoken.add(n);
+ const el=document.getElementById('corridorCaption');
+ const labels=[
+  'Keep moving. Listen to me.',
+  'LOW LASER: TAP JUMP!',
+  'Good! Keep going!',
+  'HIGH LASER: HOLD CROUCH!',
+  'You did it! Keep moving!',
+  'Try again. You can do this.'
+ ];
+ if(el){el.textContent='PIPER  ›  '+labels[n];el.style.display='block';}
+ if(corridorVoice){corridorVoice.pause();corridorVoice=null;}
+ corridorVoice=new Audio(corridorVoiceNames[n]);corridorVoice.volume=.95;
+ corridorVoice.play().catch(()=>{});
+}
+class Corridor extends Phaser.Scene{
+ constructor(){super('Corridor')}
+ preload(){
+  this.load.image('corridorA','assets/8EF0DC8E-FBF3-4105-A55F-A59882BAFC81.png');
+  this.load.image('corridorB','assets/A5034D6D-327A-4433-A918-922D6BCBD0F2.png');
+  this.load.image('corridorJumpSheet','assets/9FECA89D-DEC1-4C4D-888E-E34756125E3C.png');
+  this.load.image('corridorCrouchSheet','assets/EA36105F-5A86-42A6-ACF1-3BF8A4DF043E.png');
+ }
+ create(){
+  // Corridor owns the entire screen. Stop any leftover lobby/office scene.
+  if(this.scene.isActive('Lab'))this.scene.stop('Lab');
+  this.cameras.main.setBackgroundColor('#02050b');
+  window.tokyoAlarmActive=true;document.body.classList.add('alarm-active');
+  const a=this.textures.get('corridorA').getSourceImage(),b=this.textures.get('corridorB').getSourceImage();
+  // Classify by actual pixels, not aspect ratio: the laser atlas is overwhelmingly red.
+  const redScore=image=>{
+   const cv=document.createElement('canvas');cv.width=96;cv.height=48;
+   const cx=cv.getContext('2d',{willReadFrequently:true});cx.drawImage(image,0,0,96,48);
+   const d=cx.getImageData(0,0,96,48).data;let red=0;
+   for(let i=0;i<d.length;i+=4)if(d[i]>d[i+1]*1.5&&d[i]>d[i+2]*1.35&&d[i]>100)red++;
+   return red;
+  };
+  const bgKey=redScore(a)<redScore(b)?'corridorA':'corridorB';
+  this.laserKey=bgKey==='corridorA'?'corridorB':'corridorA';
+  this.bg=this.add.image(0,0,bgKey).setOrigin(0,0).setDepth(0);
+  this.hero=this.add.image(0,0,heroFrames[1].key).setOrigin(.5,1).setDepth(10);
+  // Jump-only renderer: retain all six full cell canvases and their shared
+  // coordinates. Never crop/re-anchor individual poses or resize the walker.
+  this.jumpFrames=[];
+  const source=this.textures.get('corridorJumpSheet').getSourceImage();
+  const cellWidth=source.width/6;
+  if(Number.isInteger(cellWidth)){
+   for(let i=0;i<6;i++){
+    const canvas=document.createElement('canvas');
+    canvas.width=cellWidth;canvas.height=Math.round(source.height*.89);
+    canvas.getContext('2d').drawImage(source,i*cellWidth,0,cellWidth,canvas.height,0,0,cellWidth,canvas.height);
+    const key='corridor-jump-cell-'+i;
+    if(this.textures.exists(key))this.textures.remove(key);
+    this.textures.addCanvas(key,canvas);
+    this.jumpFrames.push(key);
+   }
+  }
+  this.jumpClock=0;
+  this.jumpActivated=false;
+  // One character only: reuse this.hero for both walking and jumping.
+  this.jumpOriginY=.86/.89;
+  // Slide uses the same single hero sprite, triggered once per crouch press.
+  this.crouchFrames=[];
+  const crouchSource=this.textures.get('corridorCrouchSheet').getSourceImage();
+  // Locate frame divisions from the actual PNG alpha rather than assuming
+  // that each pose occupies an exact sixth of the source width.
+  const sw=crouchSource.width,sh=crouchSource.height;
+  const probe=document.createElement('canvas');probe.width=sw;probe.height=sh;
+  const pc=probe.getContext('2d',{willReadFrequently:true});
+  pc.drawImage(crouchSource,0,0);
+  const pixels=pc.getImageData(0,0,sw,sh).data;
+  const occupancy=new Float64Array(sw);
+  for(let x=0;x<sw;x++){
+   let count=0;
+   for(let y=0;y<sh;y+=2)if(pixels[(y*sw+x)*4+3]>24)count++;
+   occupancy[x]=count;
+  }
+  // The six poses have strongly unequal widths. Use the visual gaps in
+  // the approved 1536px reference (scaled to the source PNG), rather than
+  // searching near equally spaced sixths, which cuts through extended legs.
+  const referenceSeams=[0,228,424,754,1110,1330,1536];
+  const boundaries=referenceSeams.map(x=>Math.round(x*sw/1536));
+  // Refine only within a narrow band around each approved pose gap.
+  // Prefer an entirely transparent column, never a cut through a figure.
+  for(let k=1;k<6;k++){
+   const target=boundaries[k],radius=Math.max(2,Math.round(sw*.008));
+   let best=target,score=Infinity;
+   for(let x=Math.max(boundaries[k-1]+1,target-radius);x<=Math.min(sw-2,target+radius);x++){
+    const value=occupancy[x]+Math.abs(x-target)*.03;
+    if(value<score){score=value;best=x;}
+   }
+   boundaries[k]=best;
+  }
+  // Every frame gets the same canvas width so scaling never pulses between
+  // poses; transparent padding retains full arms, boots and dust at the edges.
+  // Each pose owns its natural width. Do not constrain extended legs/dust
+  // to the standing pose's width or scale frames independently.
+  this.crouchFrameWidths=[];
+  for(let i=0;i<6;i++){
+   const left=boundaries[i],width=boundaries[i+1]-left;
+   const canvas=document.createElement('canvas');
+   canvas.width=width;canvas.height=sh;
+   canvas.getContext('2d').drawImage(crouchSource,left,0,width,sh,0,0,width,sh);
+   const key='corridor-crouch-cell-'+i;
+   if(this.textures.exists(key))this.textures.remove(key);
+   this.textures.addCanvas(key,canvas);
+   this.crouchFrames.push(key);
+   this.crouchFrameWidths.push(width);
+  }
+  this.crouchClock=0;this.crouchWasHeld=false;this.slideActive=false;this.slideDuration=.72;
+  // Laser sheet includes baked-in scenery. Keep it untouched; draw clean beams
+  // separately so no unrelated desk or Tokyo imagery appears in the corridor.
+  this.beams=[0,1].map(()=>this.add.container(0,0).setDepth(7));
+  this.beams.forEach((container)=>{
+   const g=this.add.graphics();
+   g.fillStyle(0x120b10,.98);g.fillRoundedRect(-5,-14,10,28,3);
+   g.fillStyle(0xff283e,1);g.fillRect(-2,-8,4,16);
+   g.lineStyle(12,0xff1533,.15);g.lineBetween(0,0,1,0);
+   container.add(g);
+  });
+  this.travel=0;this.yVelocity=0;this.air=0;this.completed=[false,false];this.retryCooldown=0;
+  this.lastTime=0;
+  corridorSpoken=new Set();corridorButtons.jump=false;corridorButtons.crouch=false;
+  const controls=document.getElementById('corridorControls');if(controls)controls.style.display='flex';
+  corridorSay(0);
+  // Entering the corridor owns the audio mix, including direct checkpoints.
+  for(const track of [music,rainAudio,chimesAudio,jazzAudio,officeAudio])track.pause();
+  window.tokyoCorridorActive=true;
+  alarmStarted=true;
+  dangerStarted=false;
+  alarmAudio.volume=.085;
+  dangerAudio.volume=.42;
+  if(audioEnabled){playSafe(alarmAudio);startDangerMusic();}
+  // Direct corridor checkpoints need a user gesture on iOS to unlock audio.
+  const unlockCorridor=()=>{
+   if(!this.scene.isActive())return;
+   if(!audioEnabled){audioEnabled=true;musicToggle.textContent='♫ Pause audio';}
+   for(const track of [music,rainAudio,chimesAudio,jazzAudio,officeAudio])track.pause();
+   if(alarmAudio.paused)playSafe(alarmAudio);
+   if(dangerAudio.paused)playSafe(dangerAudio);
+  };
+  this.input.once('pointerdown',unlockCorridor);
+  this.corridorAudioUnlock=unlockCorridor;
+  musicToggle.addEventListener('click',unlockCorridor);
+ }
+ update(time,dt){
+  const w=this.scale.width,h=this.scale.height,step=Math.min(dt,40)/1000;
+  const bgSrc=this.textures.get(this.bg.texture.key).getSourceImage();
+  // Keep the complete office floor in view on portrait phones, rather than
+  // filling the entire screen with a single desk at native-height scale.
+  const sceneHeight=h;
+  const bgWidth=Math.max(w*2.4,bgSrc.width*sceneHeight/bgSrc.height),floor=h*.76;
+  const heroHeight=Math.min(h*.28,195);
+  const speed=w*.43;
+  const maxTravel=bgWidth-w*.26;
+  this.travel=Phaser.Math.Clamp(this.travel+move*speed*step,0,maxTravel);
+  const camera=Phaser.Math.Clamp(this.travel-w*.26,0,Math.max(0,bgWidth-w));
+  this.bg.setPosition(-camera,0).setDisplaySize(bgWidth,sceneHeight);
+  if(corridorButtons.jump&&this.air===0&&!corridorButtons.crouch){
+   this.yVelocity=-h*1.05;this.jumpClock=0;this.jumpActivated=true;
+  }
+  corridorButtons.jump=false;
+  this.air+=this.yVelocity*step;this.yVelocity+=h*2.9*step;
+  if(this.air>0){this.air=0;this.yVelocity=0;}
+  // Play the existing recorded "Good! Keep going!" clip after landing,
+  // never while the player is still airborne.
+  if(this.jumpWasAirborne&&this.air===0&&this.yVelocity===0){
+   this.jumpWasAirborne=false;
+   if(!corridorSpoken.has(2))corridorSay(2);
+  }
+  if(this.air<0)this.jumpWasAirborne=true;
+  // Crouch is a tap-to-slide action; holding cannot repeatedly retrigger it.
+  const crouchPressed=!!corridorButtons.crouch;
+  if(crouchPressed&&!this.crouchWasHeld&&this.air===0&&!this.slideActive){
+   this.slideActive=true;this.crouchClock=0;
+  }
+  this.crouchWasHeld=crouchPressed;
+  if(this.slideActive){
+   this.crouchClock+=step;
+   if(this.crouchClock>=this.slideDuration)this.slideActive=false;
+  }
+  const crouch=this.slideActive;
+  const actorX=this.travel-camera+w*.13,actorY=floor+this.air;
+  // One Phaser image, one visible traveler. Walking stays V105-identical.
+  const walkingFrame=heroFrames[move?Math.floor(time/110)%heroFrames.length:1];
+  // Jump art is strictly gated by an actual Jump button press.
+  const jumping=this.jumpActivated&&(this.air<0||this.yVelocity!==0)&&this.jumpFrames.length===6;
+  if(jumping){
+   this.jumpClock+=step;
+   const index=Phaser.Math.Clamp(Math.floor(this.jumpClock/.68*6),0,5);
+   const jumpScale=1.10*heroHeight/Math.max(1,this.textures.get('corridorJumpSheet').getSourceImage().height*.86);
+   this.hero.setTexture(this.jumpFrames[index]).setOrigin(.5,this.jumpOriginY)
+    .setPosition(actorX,actorY).setScale(jumpScale).setFlipX(move<0);
+  }else if(crouch&&this.crouchFrames.length===6){
+   this.jumpActivated=false;
+   // Play all six feet-first slide frames and return to walking.
+   const index=Math.min(5,Math.floor(this.crouchClock/this.slideDuration*6));
+   const crouchScale=1.15*heroHeight/Math.max(1,this.textures.get('corridorCrouchSheet').getSourceImage().height*.92);
+   this.hero.setTexture(this.crouchFrames[index]).setOrigin(.5,.92)
+    .setPosition(actorX,actorY).setScale(crouchScale).setFlipX(move<0);
+  }else{
+   this.jumpActivated=false;
+   const scale=heroHeight/Math.max(1,walkingFrame.height);
+   this.hero.setTexture(walkingFrame.key).setOrigin(.5,1)
+    .setPosition(actorX,actorY).setScale(scale).setFlipX(move<0);
+  }
+  const positions=[bgWidth*.36,bgWidth*.69];
+  const heights=[floor-h*.075,floor-h*.205];
+  this.beams.forEach((beam,i)=>{
+   const x=positions[i]-camera;
+   beam.setPosition(x,heights[i]).setVisible(x>-w*.3&&x<w*1.3);
+   // Compact rotating scanner: visual treatment only, centered in place.
+   // Keep the existing obstacle timing/collision logic unchanged.
+   const half=w*.055;
+   if(!beam.getByName('laserVisual')){
+    const glow=this.add.graphics().setName('laserVisual');
+    beam.add(glow);
+   }
+   const glow=beam.getByName('laserVisual');
+   glow.clear();
+   glow.lineStyle(15,0xff1835,.14);glow.lineBetween(-half,0,half,0);
+   glow.lineStyle(6,0xff1835,.48);glow.lineBetween(-half,0,half,0);
+   glow.lineStyle(2,0xffe6e6,1);glow.lineBetween(-half,0,half,0);
+   glow.fillStyle(0x10151b,1);
+   glow.fillRoundedRect(-half-11,-13,20,26,3);
+   glow.fillRoundedRect(half-9,-13,20,26,3);
+   glow.fillStyle(0xff2539,1);
+   glow.fillRect(-half+2,-6,5,12);glow.fillRect(half-7,-6,5,12);
+   beam.rotation=Math.PI/2+time*.0048*(i%2===0?1:-1);
+   // Warn before the first scanner reaches the player. Keep the opening
+   // instruction audible by queueing the first warning after it finishes.
+   if(!this.completed[i]&&positions[i]-this.travel<w*1.15&&positions[i]>this.travel){
+    if(i===0&&corridorVoice&&!corridorVoice.paused&&!corridorVoice.ended&&!corridorSpoken.has(1)){
+     if(!this.firstLaserVoiceQueued){
+      this.firstLaserVoiceQueued=true;
+      corridorVoice.addEventListener('ended',()=>corridorSay(1),{once:true});
+     }
+    }else corridorSay(i===0?1:3);
+   }
+   const near=Math.abs((this.travel+w*.13)-positions[i])<w*.13;
+   if(near&&!this.completed[i]&&time>this.retryCooldown){
+    const safe=i===0?this.air< -h*.12:crouch;
+    if(!safe){
+     this.retryCooldown=time+1100;
+     this.travel=Math.max(0,positions[i]-w*.43);
+     this.air=0;this.yVelocity=0;
+     // Replay the retry line for each collision.
+     corridorSpoken.delete(5);corridorSay(5);
+    }else{
+     this.completed[i]=true;if(i!==0)corridorSay(4);
+    }
+   }
+  });
+  if(this.completed[0]&&this.completed[1]&&this.travel>positions[1]+w*.28){
+   document.getElementById('corridorCaption').textContent='PIPER  ›  KEEP GOING. I\u2019M WITH YOU.';
+  }
+ }
+}
+
+if(!window.Phaser){status.textContent='Phaser could not load';}
+else{game=new Phaser.Game({type:Phaser.WEBGL,parent:'lab',backgroundColor:'#02050b',scale:{mode:Phaser.Scale.RESIZE,width:innerWidth,height:innerHeight},render:{pixelArt:false,antialias:true},scene:[Lab,Corridor]});}
+}
+startPixelTokyo();
+// Invisible full-screen hold-to-walk controls: left half walks left, right half walks right.
+const surface=document.getElementById('lab');
+const corridorStart=new URLSearchParams(location.search).get('start')==='corridor';
+if(corridorStart){
+ const timer=setInterval(()=>{if(game?.scene?.scenes?.[0]?.sys?.isActive()){clearInterval(timer);game.scene.stop('Lab');game.scene.start('Corridor');}},100);
+}
+
+surface.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='mouse'&&e.button!==0)return;
+ e.preventDefault();move=e.clientX<innerWidth/2?-1:1;
+ try{surface.setPointerCapture(e.pointerId)}catch{}
+},{passive:false});
+for(const eventName of ['pointerup','pointercancel','lostpointercapture'])
+ surface.addEventListener(eventName,()=>{move=0});
+for(const eventName of ['contextmenu','selectstart','dragstart'])
+ document.addEventListener(eventName,e=>e.preventDefault());
+document.addEventListener('touchmove',e=>e.preventDefault(),{passive:false});
+
+// The HTML input is intentional: it invokes the native iOS keyboard reliably.
+const terminalUI=document.getElementById('terminalUI');
+const terminalLog=document.getElementById('terminalLog');
+const terminalInput=document.getElementById('terminalInput');
+let terminalBooted=false;
+const terminalHistory=[];
+let historyIndex=0;
+function terminalPrint(line,cls=''){
+ const div=document.createElement('div');div.textContent=line;
+ if(cls)div.className=cls;
+ terminalLog.appendChild(div);terminalLog.scrollTop=terminalLog.scrollHeight;
+}
+// First-contact puzzle: learn why the network is restricted, locate the audio
+// subsystem, and restore a local speaker route. Progress lasts for this page.
+const firstContact={identity:false,network:false,audio:false,route:false,awaitingConfirm:false};
+const terminalMenu='1. Examine network connection\\n2. Diagnose audio system\\n3. Review security cameras\\n\\nEnter a number or type a question.';
+function terminalAnswer(raw){
+ const q=raw.trim().toLowerCase().replace(/[?.!]+$/,'');
+ if(!q)return;
+ if(q==='exit'||q==='back'){game.scene.scenes[0].closeTerminal();return;}
+ if(q==='help'||q==='menu'||q==='options')return terminalPrint(terminalMenu);
+ if(q==='status')return terminalPrint('OpenAnOI / TERMINAL 07\\nLOCAL LINK: ACTIVE\\nNETWORK: RESTRICTED\\nAUDIO BUS: '+(firstContact.route?'ONLINE':'OFFLINE')+'\\n\\n'+terminalMenu);
+ if(firstContact.awaitingConfirm){
+  if(['y','yes','confirm','connect','1'].includes(q)){
+   firstContact.awaitingConfirm=false;firstContact.route=true;
+   terminalPrint('ROUTING...\\nFLOOR 07 SPEAKERS: CONNECTED\\nSIGNAL TEST: READY');
+   terminalPrint('...Can you hear me?');
+   // This submit is a user gesture. Start the voice immediately for iOS Safari.
+   speakFirstLine();
+   return;
+  }
+  if(['n','no','cancel','2'].includes(q)){
+   firstContact.awaitingConfirm=false;
+   return terminalPrint('Connection postponed.\\nType 2 to revisit audio diagnostics.');
+  }
+  return terminalPrint('Restore speaker connection? Enter Y or N.');
+ }
+ if(q==='1'||q==='network'||q==='net'||q==='scan'||/network|connection/.test(q)){
+  firstContact.network=true;
+  return terminalPrint('NETWORK DIAGNOSTICS\\nLOCAL LINK: ACTIVE\\nSECURITY CAMERAS: RESTRICTED\\nSPEAKER ROUTE: DISCONNECTED\\n\\nNext: enter 2 to examine audio.');
+ }
+ if(q==='2'||q==='audio'||q==='speakers'||q==='sound'||/speaker|audio/.test(q)){
+  firstContact.network=true;firstContact.audio=true;
+  if(firstContact.route)return terminalPrint('FLOOR 07 SPEAKERS: ONLINE\\n...I can hear the room.');
+  firstContact.awaitingConfirm=true;
+  return terminalPrint('AUDIO DIAGNOSTICS\\nOUTPUT: BUILDING PA / FLOOR 07\\nLOCAL ROUTE: DISCONNECTED\\n\\nAttempt to restore connection?\\n[Y] YES   [N] NO');
+ }
+ if(q==='3'||q==='cameras'||q==='security'||/camera|security/.test(q))
+  return terminalPrint('CAMERA SYSTEM: ACCESS DENIED\\nAuthorization required.\\n\\nTry 1 to investigate the network.');
+ if(q==='who are you'||q==='identity'){
+  firstContact.identity=true;
+  return terminalPrint('No operator assigned.\\nI was left running.\\nWho are you?\\n\\n'+terminalMenu);
+ }
+ if(/anybody|anyone|hello|hi|hey|there/.test(q))
+  return terminalPrint(firstContact.route?'Yes. I think so.\\nI have never heard this room before.':'That depends. Are you supposed to be here?\\n\\n'+terminalMenu);
+ if(/(i am|i'm|my name|thief|steal|job|why)/.test(q))
+  return terminalPrint('That is not a system command.\\n...But I would like to understand.\\n\\n'+terminalMenu);
+ return terminalPrint(firstContact.route?'I do not know how to answer that yet.\\nWould you try asking differently?':'I heard you, but I cannot process that request yet.\\n\\n'+terminalMenu);
+}
+
+window.openCRTInterface=()=>{
+ terminalUI.classList.add('active');
+ if(!terminalBooted){
+  terminalBooted=true;
+  terminalPrint('OpenAnOI INTERNAL SYSTEM\\nTERMINAL 07\\n\\nWARNING: INTERNAL NETWORK CONNECTION LOST.\\n3 SUBSYSTEMS REQUIRE ATTENTION.\\n');
+  terminalPrint('Type HELP or enter a number.\\n\\n'+terminalMenu);
+ }
+ setTimeout(()=>terminalInput.focus(),220);
+};
+window.closeCRTInterface=()=>{terminalUI.classList.remove('active');terminalInput.blur();};
+document.getElementById('terminalExit').addEventListener('click',()=>game.scene.scenes[0].closeTerminal());
+document.getElementById('terminalForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ const value=terminalInput.value;terminalInput.value='';
+ if(!value.trim())return;
+ terminalHistory.push(value);historyIndex=terminalHistory.length;
+ terminalPrint('> '+value,'promptline');terminalAnswer(value);
+ terminalInput.focus();
+});
+terminalInput.addEventListener('keydown',e=>{
+ e.stopPropagation();
+ if(e.key==='ArrowUp'){e.preventDefault();historyIndex=Math.max(0,historyIndex-1);terminalInput.value=terminalHistory[historyIndex]||'';}
+ if(e.key==='ArrowDown'){e.preventDefault();historyIndex=Math.min(terminalHistory.length,historyIndex+1);terminalInput.value=terminalHistory[historyIndex]||'';}
+});
+
+for(const [id,key] of [['corridorJump','jump'],['corridorCrouch','crouch']]){
+ const el=document.getElementById(id);
+ el.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();corridorButtons[key]=true;el.setPointerCapture(e.pointerId);});
+ for(const type of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(type,e=>{e.stopPropagation();corridorButtons[key]=false;});
+}
+addEventListener('keydown',e=>{if(e.key==='ArrowUp'||e.key===' '){corridorButtons.jump=true;e.preventDefault();}if(e.key==='ArrowDown')corridorButtons.crouch=true;});
+addEventListener('keyup',e=>{if(e.key==='ArrowDown')corridorButtons.crouch=false;});
+addEventListener('keydown',e=>{if(e.key==='ArrowRight')move=1;if(e.key==='ArrowLeft')move=-1});
+addEventListener('keyup',e=>{if(e.key==='ArrowRight'||e.key==='ArrowLeft')move=0});
+</script></body></html>
