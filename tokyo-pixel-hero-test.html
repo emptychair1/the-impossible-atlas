@@ -1066,6 +1066,18 @@ class Corridor extends Phaser.Scene{
  }
 }
 
+async function startPixelTokyo(){
+ try{
+  const response=await fetch('assets/Detailed_cinematic_pixel-Idle.zip');
+  if(!response.ok)throw Error('Pixel ZIP '+response.status);
+  const zip=await JSZip.loadAsync(await response.arrayBuffer());
+  const all=Object.values(zip.files).filter(f=>!f.dir&&/\\.png$/i.test(f.name));
+  const walks=all.filter(f=>/walking/i.test(f.name)&&/east/i.test(f.name)&&!/south.east|north.east/i.test(f.name)).sort((a,b)=>a.name.localeCompare(b.name));
+  if(walks.length!==8)throw Error('Expected eight east walking frames, found '+walks.length);
+  pixelHeroAssets={};
+  for(let i=0;i<walks.length;i++){const bytes=await walks[i].async('uint8array');pixelHeroAssets['walk-'+i]=URL.createObjectURL(new Blob([bytes],{type:'image/png'}))}
+  status.textContent='Approved Pixel Lab hero loaded · eight walk frames';
+ }catch(e){console.error(e);status.textContent='Original hero fallback: '+e.message}
 if(!window.Phaser){status.textContent='Phaser could not load';}
 else{game=new Phaser.Game({type:Phaser.WEBGL,parent:'lab',backgroundColor:'#02050b',scale:{mode:Phaser.Scale.RESIZE,width:innerWidth,height:innerHeight},render:{pixelArt:false,antialias:true},scene:[Lab,Corridor]});}
 }
