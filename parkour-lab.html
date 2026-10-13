@@ -1,9 +1,9 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V11 · Wall Run</title><style>
-*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:12px;padding:14px;justify-content:flex-end;padding-right:18px}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;width:78px;height:78px;border-radius:50%;font-size:13px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V11 WALL RUN</h2><p>Isolated test. Auto-run. WALL RUN approaches a target wall, plants, travels up/along it, pushes off, then recovers into RUN. Slide and running jump remain intact. Frozen chase untouched.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="jump">▲ JUMP</button><button id="slide">SLIDE</button><button id="wallrun">WALL RUN</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V12 · Horizontal Wall Run</title><style>
+*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:12px;padding:14px;justify-content:flex-end;padding-right:18px}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;width:78px;height:78px;border-radius:50%;font-size:13px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V12 HORIZONTAL WALL RUN</h2><p>Isolated test. Auto-run. WALL RUN now plants onto a long wall parallel to the chase, holds a fixed wall-running height while traveling horizontally, then pushes off, lands, and returns to RUN. Frozen chase untouched.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="jump">▲ JUMP</button><button id="slide">SLIDE</button><button id="wallrun">WALL RUN</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
 const canvas=document.getElementById('stage'),ctx=canvas.getContext('2d'),status=document.getElementById('status');let run=[],crouch=[],jump=[],slide=[],wallrun=[],held='',clock=0,last=0,ready=false,jumpTime=-1,slideTime=-1,wallTime=-1;const JUMP_MS=760,SLIDE_MS=620,WALL_MS=1150;
 const VISUAL_SCALE={run:1,jump:1.22,slide:1.18};
 const SLIDE_DROP=.17,SLIDE_IN=.24,SLIDE_OUT=.28;
-const WALL_APPROACH=.18,WALL_PLANT=.18,WALL_TRAVEL=.38,WALL_EXIT=.26;
+const WALL_APPROACH=.20,WALL_PLANT=.12,WALL_EXIT=.24,WALL_HEIGHT=.16;
 function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=canvas.clientWidth*d;canvas.height=canvas.clientHeight*d;ctx.imageSmoothingEnabled=false}addEventListener('resize',resize);resize();
 for(const id of ['jump','slide','wallrun']){
  const b=document.getElementById(id);
@@ -58,7 +58,7 @@ async function load(){
  }
  ready=Boolean(run.length||jump.length||slide.length||wallrun.length);
  status.textContent=ready
-  ?'V11 · '+run.length+' RUN · '+jump.length+' JUMP · '+slide.length+' SLIDE · '+wallrun.length+' WALL RUN · APPROACH/PLANT/TRAVEL/EXIT'+(!crouch.length?' (crouch asset not found; running preview works)':'')
+  ?'V12 · '+run.length+' RUN · '+jump.length+' JUMP · '+slide.length+' SLIDE · '+wallrun.length+' HORIZONTAL WALL RUN · PLANT/HOLD/KICK/LAND'+(!crouch.length?' (crouch asset not found; running preview works)':'')
   :'No character frames found: '+errors.join(' | ');
  if(!ready)console.error('Parkour asset diagnostics:',errors);
 }
@@ -73,8 +73,16 @@ function frame(t){
  ctx.clearRect(0,0,w,h);ctx.fillStyle='#101f2b';
  for(let x=0;x<w;x+=w/12)ctx.fillRect(x,0,2,h);
  ctx.fillStyle='#1e3a35';ctx.fillRect(0,floor,w,5);
- // Target wall appears during the wall-run test so contact and recovery are readable.
- if(walling){const wallX=w*.72;ctx.fillStyle='#18303a';ctx.fillRect(wallX,h*.12,w*.055,floor-h*.12);ctx.fillStyle='#31505a';ctx.fillRect(wallX,h*.12,4,floor-h*.12)}
+ // Long wall parallel to the chase: its seams scroll left to make horizontal travel readable.
+ if(walling){
+  const wallTop=h*.20,wallBottom=floor+h*.03;
+  ctx.fillStyle='#18303a';ctx.fillRect(0,wallTop,w,wallBottom-wallTop);
+  ctx.fillStyle='#31505a';ctx.fillRect(0,wallTop,w,4);
+  const scroll=(wallTime*.55)%(w*.16);
+  ctx.fillStyle='#24434c';
+  for(let x=-scroll;x<w;x+=w*.16)ctx.fillRect(x,wallTop,3,wallBottom-wallTop);
+  for(let y=wallTop+h*.12;y<wallBottom;y+=h*.12)ctx.fillRect(0,y,w,2);
+ }
  ctx.fillStyle='#7effb4';ctx.font=Math.max(13,w*.018)+'px monospace';
  ctx.fillText(airborne?'RUNNING JUMP':sliding?'SLIDE':walling?'WALL RUN':'RUN',18,35);
  if(ready){
@@ -107,13 +115,22 @@ function frame(t){
   }
   let actorX=w*.5,wallLift=0;
   if(walling){
-   const wallX=w*.72,contactX=wallX-img.width*scale*.52;
-   if(wallP<WALL_APPROACH){const q=wallP/WALL_APPROACH;actorX=w*.5+(contactX-w*.5)*q}
-   else if(wallP<1-WALL_EXIT){actorX=contactX}
-   else {const q=(wallP-(1-WALL_EXIT))/WALL_EXIT;actorX=contactX+(w*.5-contactX)*q}
-   const travelStart=WALL_APPROACH+WALL_PLANT*.45,travelEnd=1-WALL_EXIT;
-   if(wallP>travelStart&&wallP<travelEnd){const q=(wallP-travelStart)/(travelEnd-travelStart);wallLift=Math.sin(Math.PI*q)*h*.24}
-   else if(wallP>=travelEnd){const q=(wallP-travelEnd)/WALL_EXIT;wallLift=(1-q)*h*.05}
+   // Horizontal wall run: small plant rise, fixed-height travel, then a clean drop to RUN.
+   // The wall texture moves beneath him to sell forward travel while contact stays locked.
+   if(wallP<WALL_APPROACH){
+    const q=wallP/WALL_APPROACH;
+    const eased=q*q*(3-2*q);
+    wallLift=eased*h*WALL_HEIGHT;
+    actorX=w*.5+eased*w*.035;
+   }else if(wallP<1-WALL_EXIT){
+    wallLift=h*WALL_HEIGHT;
+    actorX=w*.535;
+   }else{
+    const q=(wallP-(1-WALL_EXIT))/WALL_EXIT;
+    const eased=q*q*(3-2*q);
+    wallLift=(1-eased)*h*WALL_HEIGHT;
+    actorX=w*.535-eased*w*.035;
+   }
   }
   ctx.drawImage(img,actorX-img.width*scale*.5,floor-height+drop-lift-wallLift,img.width*scale,height);
  }
