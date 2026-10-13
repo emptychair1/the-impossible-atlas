@@ -1,6 +1,7 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V5 · Running Jump</title><style>
-*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:12px;padding:14px;justify-content:flex-end;padding-right:18px}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;width:78px;height:78px;border-radius:50%;font-size:13px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V5 RUNNING JUMP</h2><p>Isolated test. Auto-run. Tap JUMP while running; hold CROUCH to duck. Same JUMP / CROUCH controls as the game. Frozen chase untouched.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="jump">▲ JUMP</button><button id="crouch">▼ CROUCH</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V6 · Character Scale Lock</title><style>
+*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:12px;padding:14px;justify-content:flex-end;padding-right:18px}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;width:78px;height:78px;border-radius:50%;font-size:13px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V6 CHARACTER SCALE LOCK</h2><p>Isolated test. Auto-run. JUMP and CROUCH are visually normalized to the running character scale. Same game-style touch controls. Frozen chase untouched.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="jump">▲ JUMP</button><button id="crouch">▼ CROUCH</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
 const canvas=document.getElementById('stage'),ctx=canvas.getContext('2d'),status=document.getElementById('status');let run=[],crouch=[],jump=[],held='',clock=0,last=0,ready=false,jumpTime=-1;const JUMP_MS=760;
+const VISUAL_SCALE={run:1,jump:1.22,crouch:1.24};
 function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=canvas.clientWidth*d;canvas.height=canvas.clientHeight*d;ctx.imageSmoothingEnabled=false}addEventListener('resize',resize);resize();
 for(const id of ['jump','crouch']){
  const b=document.getElementById(id);
@@ -51,7 +52,7 @@ async function load(){
  }
  ready=Boolean(run.length||crouch.length||jump.length);
  status.textContent=ready
-  ?'V5 · '+run.length+' RUN frames · '+crouch.length+' CROUCH frames · '+jump.length+' RUNNING JUMP frames'+(!crouch.length?' (crouch asset not found; running preview works)':'')
+  ?'V6 · '+run.length+' RUN frames · '+crouch.length+' CROUCH frames · '+jump.length+' RUNNING JUMP frames · SCALE LOCK'+(!crouch.length?' (crouch asset not found; running preview works)':'')
   :'No character frames found: '+errors.join(' | ');
  if(!ready)console.error('Parkour asset diagnostics:',errors);
 }
@@ -70,7 +71,9 @@ function frame(t){
   const seq=airborne&&jump.length?jump:held==='crouch'&&crouch.length?crouch:run.length?run:crouch.length?crouch:jump;
   const index=airborne&&seq===jump?Math.min(Math.floor(jumpTime/JUMP_MS*seq.length),seq.length-1):held==='crouch'&&seq===crouch?Math.min(Math.floor(clock/110),seq.length-1):Math.floor(clock/90)%seq.length;
   const img=seq[index];
-  const height=Math.min(h*.38,200*(devicePixelRatio||1)),scale=height/img.height;
+  const baseHeight=Math.min(h*.38,200*(devicePixelRatio||1));
+  const kind=airborne&&seq===jump?'jump':held==='crouch'&&seq===crouch?'crouch':'run';
+  const height=baseHeight*VISUAL_SCALE[kind],scale=height/img.height;
   const lift=airborne?Math.sin(Math.PI*jumpTime/JUMP_MS)*h*.23:0;
   ctx.drawImage(img,w*.5-img.width*scale*.5,floor-height-lift,img.width*scale,height);
  }
