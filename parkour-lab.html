@@ -1,12 +1,27 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V4 · Crouch Hold</title><style>
-*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:10px;padding:14px;justify-content:center}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;padding:16px 22px;border-radius:12px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V4 CROUCH HOLD</h2><p>Isolated test. Hold RUN or CROUCH; crouch settles and holds at the final frame. Release to stand. No chase changes.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="run">HOLD RUN ▶</button><button id="crouch">HOLD CROUCH ▼</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
-const canvas=document.getElementById('stage'),ctx=canvas.getContext('2d'),status=document.getElementById('status');let run=[],crouch=[],held='',clock=0,last=0,ready=false;
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Parkour Lab V5 · Running Jump</title><style>
+*{box-sizing:border-box}html,body{margin:0;background:#071018;color:#d6ffe7;font:14px system-ui;overflow:hidden}header{padding:14px 16px}h2{margin:0;font-size:18px}p{margin:5px 0;color:#9fc3b3}canvas{display:block;width:100%;height:55vh;touch-action:none;image-rendering:pixelated;background:#0b1520}.buttons{display:flex;gap:12px;padding:14px;justify-content:flex-end;padding-right:18px}button{background:#133329;border:1px solid #6ed6a4;color:#d7ffe8;width:78px;height:78px;border-radius:50%;font-size:13px;font-weight:800;touch-action:none}button:active,button.active{background:#32684d}#status{padding:4px 16px;color:#a5dfc5;text-align:center}</style></head><body><header><h2>PARKOUR LAB · V5 RUNNING JUMP</h2><p>Isolated test. Auto-run. Tap JUMP while running; hold CROUCH to duck. Same JUMP / CROUCH controls as the game. Frozen chase untouched.</p></header><canvas id="stage"></canvas><div class="buttons"><button id="jump">▲ JUMP</button><button id="crouch">▼ CROUCH</button></div><div id="status">Loading original character ZIP…</div><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
+const canvas=document.getElementById('stage'),ctx=canvas.getContext('2d'),status=document.getElementById('status');let run=[],crouch=[],jump=[],held='',clock=0,last=0,ready=false,jumpTime=-1;const JUMP_MS=760;
 function resize(){const d=Math.min(devicePixelRatio||1,2);canvas.width=canvas.clientWidth*d;canvas.height=canvas.clientHeight*d;ctx.imageSmoothingEnabled=false}addEventListener('resize',resize);resize();
-for(const id of ['run','crouch']){const b=document.getElementById(id);b.addEventListener('pointerdown',e=>{e.preventDefault();b.setPointerCapture(e.pointerId);held=id;b.classList.add('active')});for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{if(held===id)held='';b.classList.remove('active')})}
+for(const id of ['jump','crouch']){
+ const b=document.getElementById(id);
+ b.addEventListener('pointerdown',e=>{
+  e.preventDefault();b.setPointerCapture(e.pointerId);b.classList.add('active');
+  if(id==='jump'){if(jumpTime<0&&held!=='crouch'){jumpTime=0;clock=0}}
+  else if(jumpTime<0){held='crouch';clock=0}
+ });
+ for(const ev of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(ev,()=>{
+  if(id==='crouch'&&held==='crouch'){held='';clock=0}
+  b.classList.remove('active');
+ });
+}
+window.addEventListener('blur',()=>{held='';for(const id of ['jump','crouch'])document.getElementById(id).classList.remove('active')});
 async function load(){
  if(typeof JSZip==='undefined'){status.textContent='ZIP library unavailable. Check network connection.';return}
  const archives=['Detailed_cinematic_pixel-Idle_copy.zip','Detailed_cinematic_pixel-Idle_copy_2.zip','Detailed_cinematic_pixel-Idle.zip'];
  const errors=[];
+ const jumpPaths=Array.from({length:8},(_,i)=>'https://raw.githubusercontent.com/emptychair1/the-impossible-atlas/main/assets/parkour/running-jump/frame_'+String(i).padStart(3,'0')+'.png');
+ const jumpLoaded=await Promise.allSettled(jumpPaths.map(async url=>{const im=new Image();im.src=url;await im.decode();return im}));
+ jump=jumpLoaded.filter(r=>r.status==='fulfilled').map(r=>r.value);
  async function decode(zip,path){
   const bytes=await zip.file(path).async('base64');
   const im=new Image();im.src='data:image/png;base64,'+bytes;await im.decode();return im;
@@ -34,12 +49,32 @@ async function load(){
    errors.push(name+': '+paths.length+' PNGs, '+runs.length+' running, '+crouches.length+' crouch');
   }catch(e){errors.push(name+': '+e.message);console.warn(name,e)}
  }
- ready=Boolean(run.length||crouch.length);
+ ready=Boolean(run.length||crouch.length||jump.length);
  status.textContent=ready
-  ?'V4 · '+run.length+' RUN frames · '+crouch.length+' CROUCH frames'+(!crouch.length?' (crouch asset not found; running preview works)':'')
+  ?'V5 · '+run.length+' RUN frames · '+crouch.length+' CROUCH frames · '+jump.length+' RUNNING JUMP frames'+(!crouch.length?' (crouch asset not found; running preview works)':'')
   :'No character frames found: '+errors.join(' | ');
  if(!ready)console.error('Parkour asset diagnostics:',errors);
 }
 
-function frame(t){const dt=Math.min((t-last)||16,60);last=t;clock+=dt;const w=canvas.width,h=canvas.height,floor=h*.76;ctx.clearRect(0,0,w,h);ctx.fillStyle='#101f2b';for(let x=0;x<w;x+=w/12){ctx.fillRect(x,0,2,h)}ctx.fillStyle='#1e3a35';ctx.fillRect(0,floor,w,5);ctx.fillStyle='#7effb4';ctx.font=Math.max(13,w*.018)+'px monospace';ctx.fillText(held==='crouch'?'CROUCH':held==='run'?'RUN':'IDLE',18,35);if(ready){const seq=held==='crouch'&&crouch.length?crouch:run.length?run:crouch;const index=held==='crouch'&&crouch.length?Math.min(Math.floor(clock/110),seq.length-1):held?Math.floor(clock/90)%seq.length:0;const img=seq[index];const height=Math.min(h*.38,200*devicePixelRatio),scale=height/img.height;ctx.drawImage(img,w*.5-img.width*scale*.5,floor-height,img.width*scale,height)}requestAnimationFrame(frame)}requestAnimationFrame(frame);load();
+function frame(t){
+ const dt=Math.min((t-last)||16,60);last=t;clock+=dt;
+ if(jumpTime>=0){jumpTime+=dt;if(jumpTime>=JUMP_MS){jumpTime=-1;clock=0}}
+ const airborne=jumpTime>=0;
+ const w=canvas.width,h=canvas.height,floor=h*.76;
+ ctx.clearRect(0,0,w,h);ctx.fillStyle='#101f2b';
+ for(let x=0;x<w;x+=w/12)ctx.fillRect(x,0,2,h);
+ ctx.fillStyle='#1e3a35';ctx.fillRect(0,floor,w,5);
+ ctx.fillStyle='#7effb4';ctx.font=Math.max(13,w*.018)+'px monospace';
+ ctx.fillText(airborne?'RUNNING JUMP':held==='crouch'?'CROUCH':'RUN',18,35);
+ if(ready){
+  const seq=airborne&&jump.length?jump:held==='crouch'&&crouch.length?crouch:run.length?run:crouch.length?crouch:jump;
+  const index=airborne&&seq===jump?Math.min(Math.floor(jumpTime/JUMP_MS*seq.length),seq.length-1):held==='crouch'&&seq===crouch?Math.min(Math.floor(clock/110),seq.length-1):Math.floor(clock/90)%seq.length;
+  const img=seq[index];
+  const height=Math.min(h*.38,200*(devicePixelRatio||1)),scale=height/img.height;
+  const lift=airborne?Math.sin(Math.PI*jumpTime/JUMP_MS)*h*.23:0;
+  ctx.drawImage(img,w*.5-img.width*scale*.5,floor-height-lift,img.width*scale,height);
+ }
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);load();
 </script></body></html>
