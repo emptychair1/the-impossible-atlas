@@ -1,10 +1,10 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no"><title>Tokyo · Phaser Lighting Lab</title>
-<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}#alarmRedLights{pointer-events:none;position:fixed;inset:0;z-index:110;display:none;mix-blend-mode:screen;background:linear-gradient(90deg,rgba(255,0,20,.18),transparent 40%,rgba(255,0,20,.18)),radial-gradient(ellipse at 22% 8%,rgba(255,0,0,.48),transparent 53%),radial-gradient(ellipse at 78% 8%,rgba(255,0,0,.48),transparent 53%);animation:emergencyPulse 1.15s ease-in-out infinite alternate}body.alarm-active #alarmRedLights{display:block}@keyframes emergencyPulse{from{opacity:.12}to{opacity:.95}}@media(prefers-reduced-motion:reduce){#alarmRedLights{animation:none;opacity:.45}}#corridorControls{display:none!important;position:fixed;bottom:calc(env(safe-area-inset-bottom) + 28px);right:18px;z-index:130;display:none;gap:12px;pointer-events:none}#corridorControls button{pointer-events:auto;border:1px solid #84ffbd88;background:#031b1cbb;color:#b4ffe2;border-radius:50%;width:78px;height:78px;font:700 13px system-ui;touch-action:none}#corridorCaption{position:fixed;top:23%;left:14px;max-width:68%;z-index:125;display:none;color:#adffd1;background:#001a13c9;border-left:3px solid #63ffad;padding:10px 12px;font:600 14px monospace;pointer-events:none}/* V170 compact fixed HUD controls */
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#02050b;color:#f7e7c5;font-family:system-ui;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;overscroll-behavior:none}#lab,#lab canvas{width:100%;height:100%;touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;outline:none}.badge{position:fixed;top:calc(env(safe-area-inset-top) + 10px);left:12px;font-size:11px;letter-spacing:.12em;pointer-events:none}.controls{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 12px);left:12px;right:12px;display:flex;gap:8px;align-items:center;justify-content:center;background:#060b17b8;padding:10px;border-radius:12px}.controls button{background:#20344b;color:white;border:1px solid #7185a1;border-radius:8px;padding:9px 14px}.controls input{width:100px}.status{position:fixed;top:calc(env(safe-area-inset-top) + 32px);left:12px;font-size:11px;color:#f3d29b} .music-toggle{position:fixed;right:12px;top:calc(env(safe-area-inset-top) + 10px);z-index:30;background:#172535dc;color:#f7e7c5;border:1px solid #a58b62;border-radius:8px;padding:9px 12px;font:12px system-ui;letter-spacing:.05em}#terminalUI{display:none;position:fixed;z-index:100;inset:15% 7% 12%;background:#02170df2;border:2px solid #35a965;box-shadow:0 0 30px #13ff6840,inset 0 0 35px #00ff2820;border-radius:16px;padding:18px;color:#82ffad;font:clamp(13px,3.5vw,18px)/1.45 ui-monospace,SFMono-Regular,monospace;flex-direction:column}#terminalUI.active{display:flex}#terminalLog{overflow:auto;white-space:pre-wrap;overflow-wrap:anywhere;flex:1;min-height:0}#terminalForm{display:flex;align-items:center;gap:7px;border-top:1px solid #2a7b4a;padding-top:10px}#terminalInput{min-width:0;flex:1;background:transparent;border:0;outline:0;color:#a9ffc4;font:inherit;user-select:text;-webkit-user-select:text}#terminalExit{align-self:flex-end;background:transparent;border:1px solid #49a66d;color:#a9ffc4;padding:6px 10px;margin-bottom:10px;font:inherit}#terminalLog .promptline{color:#d5ffde}#alarmRedLights{pointer-events:none;position:fixed;inset:0;z-index:110;display:none;mix-blend-mode:screen;background:linear-gradient(90deg,rgba(255,0,20,.18),transparent 40%,rgba(255,0,20,.18)),radial-gradient(ellipse at 22% 8%,rgba(255,0,0,.48),transparent 53%),radial-gradient(ellipse at 78% 8%,rgba(255,0,0,.48),transparent 53%);animation:emergencyPulse 1.15s ease-in-out infinite alternate}body.alarm-active #alarmRedLights{display:block}@keyframes emergencyPulse{from{opacity:.12}to{opacity:.95}}@media(prefers-reduced-motion:reduce){#alarmRedLights{animation:none;opacity:.45}}#corridorControls{display:none!important;position:fixed;bottom:calc(env(safe-area-inset-bottom) + 28px);right:18px;z-index:130;display:none;gap:12px;pointer-events:none}#corridorControls button{pointer-events:auto;border:1px solid #84ffbd88;background:#031b1cbb;color:#b4ffe2;border-radius:50%;width:78px;height:78px;font:700 13px system-ui;touch-action:none}#corridorCaption{position:fixed;top:23%;left:14px;max-width:68%;z-index:125;display:none;color:#adffd1;background:#001a13c9;border-left:3px solid #63ffad;padding:10px 12px;font:600 14px monospace;pointer-events:none}/* V171 compact fixed HUD controls */
 .badge{top:calc(env(safe-area-inset-top) + 10px)!important;left:auto!important;right:12px!important;z-index:145!important;background:#071016c9;border:1px solid #8ab0a077;border-radius:8px;padding:5px 9px;font:700 12px ui-monospace,monospace;letter-spacing:.06em}
 .music-toggle{top:calc(env(safe-area-inset-top) + 46px)!important;right:12px!important;z-index:145!important;width:36px;height:36px;padding:0!important;display:grid;place-items:center;font-size:17px!important;border-radius:9px!important}
 #corridorCaption{top:auto!important;bottom:calc(env(safe-area-inset-bottom) + 120px)!important;left:12px!important;right:12px!important;max-width:none!important;font-size:12px!important;padding:7px 10px!important;z-index:125!important}
-/* V170: keep runtime status hidden except startup/load failures */ .status:empty{display:none!important}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack" style="display:none!important" hidden>🔇</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="piperUrgent1" src="assets/ElevenLabs_2026-10-09T04_53_29_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent2" src="assets/ElevenLabs_2026-10-09T04_54_08_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent3" src="assets/ElevenLabs_2026-10-09T04_54_54_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="dangerMusic" src="assets/the_corridor_trap.mp3" preload="auto" loop playsinline></audio><audio id="securityAlarm" src="assets/voicebosch-intruder-alert-181439.mp3" preload="auto" loop playsinline></audio><audio id="piperVoice" src="assets/ElevenLabs_2026-10-09T04_42_53_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="officeMusic" src="assets/window_to_the_lobby.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div id="corridorCaption"></div><div id="corridorControls"><button id="corridorJump">▲ JUMP</button><button id="corridorCrouch">▼ CROUCH</button></div><div id="alarmRedLights" aria-hidden="true"></div><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">V170</div><div class="status" id="status">Loading Phaser…</div>
+/* V171: keep runtime status hidden except startup/load failures */ .status:empty{display:none!important}</style></head><body><div id="lab"></div><button class="music-toggle" id="musicToggle" type="button" aria-label="Play soundtrack" style="display:none!important" hidden>🔇</button><audio id="tokyoMusic" src="assets/midnight_platform.mp3" preload="auto" loop playsinline></audio><audio id="tokyoRain" src="assets/liecio-light-rain-109591.mp3" preload="auto" loop playsinline></audio><audio id="tokyoChimes" src="assets/tanweraman-wind-chimes-bells-325260.mp3" preload="auto" loop playsinline></audio><audio id="piperUrgent1" src="assets/ElevenLabs_2026-10-09T04_53_29_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent2" src="assets/ElevenLabs_2026-10-09T04_54_08_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="piperUrgent3" src="assets/ElevenLabs_2026-10-09T04_54_54_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="dangerMusic" src="assets/the_corridor_trap.mp3" preload="auto" loop playsinline></audio><audio id="securityAlarm" src="assets/voicebosch-intruder-alert-181439.mp3" preload="auto" loop playsinline></audio><audio id="piperVoice" src="assets/ElevenLabs_2026-10-09T04_42_53_Piper(speaker)_eleven_v4.mp3" preload="auto" playsinline></audio><audio id="officeMusic" src="assets/window_to_the_lobby.mp3" preload="auto" loop playsinline></audio><audio id="lobbyJazz" src="assets/grumpynora-blue-light-jazz-loop-380182.mp3" preload="auto" loop playsinline></audio><audio id="lobbyDoor" src="assets/freesound_community-glass-door-77604.mp3" preload="auto" playsinline></audio><audio id="lobbySteps" src="assets/freesound_community-footsteps_hallway-6417.mp3" preload="auto" loop playsinline></audio><audio id="elevatorClick" src="assets/freesound_community-hyacinthe_elevator-button_edited-95106.mp3" preload="auto" playsinline></audio><audio id="elevatorDing" src="assets/freesound_community-elevator-ding-at-arenco-tower-dubai-38520.mp3" preload="auto" playsinline></audio><div id="corridorCaption"></div><div id="corridorControls"><button id="corridorJump">▲ JUMP</button><button id="corridorCrouch">▼ CROUCH</button></div><div id="alarmRedLights" aria-hidden="true"></div><section id="terminalUI" role="dialog" aria-label="OpenAnOI terminal"><button id="terminalExit" type="button">✕ BACK</button><div id="terminalLog" aria-live="polite"></div><form id="terminalForm" autocomplete="off"><label for="terminalInput">&gt;</label><input id="terminalInput" enterkeyhint="send" autocapitalize="off" autocomplete="off" spellcheck="false" maxlength="240" aria-label="Terminal command"></form></section><div class="badge">V171</div><div class="status" id="status">Loading Phaser…</div>
 <script src="https://cdn.jsdelivr.net/npm/phaser@3.90.0/dist/phaser.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script><script>
 const music=document.getElementById('tokyoMusic');
 const musicToggle=document.getElementById('musicToggle');
@@ -574,7 +574,7 @@ class Lab extends Phaser.Scene{
     this.blackFade.setVisible(true).setPosition(0,0).setSize(w,h).setAlpha(fade);
    }
    if(this.lobbyTransition.elapsed>=doorsStart){
-    // V170: reveal the actual playable office behind the elevator doors.
+    // V171: reveal the actual playable office behind the elevator doors.
     // The gameplay actors remain hidden until officeStart; sound timing is unchanged.
     const im=this.textures.get('office-scroll').getSourceImage();
     const worldHeight=h*.8,worldWidth=im.width*worldHeight/im.height;
@@ -687,7 +687,7 @@ class Lab extends Phaser.Scene{
     graphics.lineBetween(x,y,x-1.5,y+drop.length);
    }
   });
-  // V170 street background at 80% scale; preserve protagonist and HUD sizing.
+  // V171 street background at 80% scale; preserve protagonist and HUD sizing.
   const streetHeight=h*.8,streetTop=h*.17;
   const sizes=sceneImages.map(pair=>pair.original.width*streetHeight/pair.original.height);
   const total=sizes.reduce((a,b)=>a+b,0);
@@ -869,7 +869,7 @@ class Corridor extends Phaser.Scene{
   // Corridor owns the entire screen. Stop any leftover lobby/office scene.
   if(this.scene.isActive('Lab'))this.scene.stop('Lab');
   this.cameras.main.setBackgroundColor('#02050b');
-  // V170: Corridor-only cigarette HUD. No HUD during terminal interaction.
+  // V171: Corridor-only cigarette HUD. No HUD during terminal interaction.
   this.health=100;this.lives=3;this.damageLocked=false;
   this.healthSprite=this.add.sprite(16,10,'cigHealth',0)
    .setOrigin(0,0).setScrollFactor(0).setDepth(1000).setDisplaySize(122.5,31.5);
@@ -955,7 +955,7 @@ class Corridor extends Phaser.Scene{
   this.jumpActivated=false;
   // One character only: reuse this.hero for both walking and jumping.
   this.jumpOriginY=.86/.89;
-  // V170: native crouch only; never distort standing art as a substitute.
+  // V171: native crouch only; never distort standing art as a substitute.
   // No old crouch-slide sheet is used as a fallback.
   this.nativeCrouchFrames=[];
   this.crouchHeld=false;
@@ -980,15 +980,15 @@ class Corridor extends Phaser.Scene{
       this.textures.addImage(key,img);
       frames.push({key,width:img.width,height:img.height});
      }
-     if(frames.length){this.nativeCrouchFrames=frames;console.info('V170 native crouch:',archive,chosen,frames.length);break;}
+     if(frames.length){this.nativeCrouchFrames=frames;console.info('V171 native crouch:',archive,chosen,frames.length);break;}
     }catch(error){console.warn('Native crouch search failed:',archive,error);}
    }
-   if(!this.nativeCrouchFrames.length)console.warn('V170: No east-facing native crouch animation found in character ZIPs.');
+   if(!this.nativeCrouchFrames.length)console.warn('V171: No east-facing native crouch animation found in character ZIPs.');
   })();
-  // V170: Doberman chase. Load authentic Running frames from existing dog ZIP.
+  // V171: Doberman chase. Load authentic Running frames from existing dog ZIP.
   this.dogFrames=[];
   this.dog=this.add.image(-200,-200,heroFrames[1].key).setOrigin(.5,1).setDepth(9).setVisible(false);
-  this.dogDistance=0;
+  this.dogDistance=0;this.dogSpawned=false;
   this.dogLoadState='loading';this.dogError='';
   (async()=>{
    try{
@@ -1012,8 +1012,8 @@ class Corridor extends Phaser.Scene{
      this.textures.addImage(key,img);
      this.dogFrames.push({key,width:img.width,height:img.height});
     }
-    this.dogLoadState='ready';console.info('V170 Doberman frames:',paths);
-   }catch(error){this.dogLoadState='error';this.dogError=String(error&&error.message||error).slice(0,90);console.warn('V170 Doberman not loaded:',error)}
+    this.dogLoadState='ready';console.info('V171 Doberman frames:',paths);
+   }catch(error){this.dogLoadState='error';this.dogError=String(error&&error.message||error).slice(0,90);console.warn('V171 Doberman not loaded:',error)}
   })();
   this.travel=0;this.yVelocity=0;this.air=0;this.completed=[false,false];this.retryCooldown=0;
   this.lastTime=0;
@@ -1048,14 +1048,19 @@ class Corridor extends Phaser.Scene{
   // Keep the complete office floor in view on portrait phones, rather than
   // filling the entire screen with a single desk at native-height scale.
   const sceneHeight=h*.8;
-  const bgWidth=Math.max(w*2.4,bgSrc.width*sceneHeight/bgSrc.height),floor=h*.83;
+  const segmentWidth=Math.max(w*2.4,bgSrc.width*sceneHeight/bgSrc.height),bgWidth=segmentWidth*4,floor=h*.83;
   const heroHeight=Math.min(h*.28,195);
   const speed=w*.43*(window.corridorSprint?1.8:1);
   const maxTravel=bgWidth-w*.26;
   this.travel=Phaser.Math.Clamp(this.travel+move*speed*step,0,maxTravel);
   const camera=Phaser.Math.Clamp(this.travel-w*.26,0,Math.max(0,bgWidth-w));
+  // Repeat the approved office background as a longer runway without stretching it.
+  if(!this.runwayTiles){
+   this.runwayTiles=[this.bg];
+   for(let i=1;i<4;i++)this.runwayTiles.push(this.add.image(0,0,this.bg.texture.key).setOrigin(0,0).setDepth(0));
+  }
   this.bgFill.setPosition(-camera,0).setDisplaySize(bgWidth,h);
-  this.bg.setPosition(-camera,h*.17).setDisplaySize(bgWidth,sceneHeight);
+  this.runwayTiles.forEach((tile,i)=>tile.setPosition(i*segmentWidth-camera,h*.17).setDisplaySize(segmentWidth,sceneHeight));
   if(corridorButtons.jump&&this.air===0&&!corridorButtons.crouch){
    this.yVelocity=-h*1.05;this.jumpClock=0;this.jumpActivated=true;
   }
@@ -1107,15 +1112,22 @@ class Corridor extends Phaser.Scene{
   // Visible diagnostics so the dog cannot fail silently on mobile.
   if(!this.dogStatusText)this.dogStatusText=this.add.text(12,h*.11,'DOG: LOADING',{font:'bold 12px monospace',color:'#aaffcc',backgroundColor:'#061c18',padding:{x:7,y:5}}).setDepth(160).setScrollFactor(0);
   this.dogStatusText.setText(this.dogLoadState==='ready'?'DOG: '+this.dogFrames.length+' FRAMES':this.dogLoadState==='error'?'DOG: '+this.dogError:'DOG: LOADING');
-  if(this.dogFrames.length){
+  // Allow a head start before the elevator dog enters the chase.
+  if(this.dogFrames.length && this.travel>w*.72 && move>0){
    const playerWorld=this.travel+w*.13;
-   const target=playerWorld-w*.14;
-   this.dogDistance=this.dogDistance===0?Math.max(w*.16,target):
-    Math.min(target,this.dogDistance+w*.34*step);
+   const chaseGap=w*.20;
+   if(!this.dogSpawned){
+    this.dogDistance=playerWorld-chaseGap;
+    this.dogSpawned=true;
+   }else{
+    // Keep pace with the player's actual movement, without teleporting ahead.
+    this.dogDistance=Math.min(playerWorld-chaseGap,this.dogDistance+speed*step);
+   }
    const dogFrame=this.dogFrames[Math.floor(time/95)%this.dogFrames.length];
    this.dog.setTexture(dogFrame.key).setVisible(true).setPosition(this.dogDistance-camera,floor)
     .setScale(heroHeight*.75/Math.max(1,dogFrame.height)).setFlipX(false);
-  }
+  }else if(!this.dogSpawned){this.dog.setVisible(false);}
+
 
  }
 }
@@ -1145,7 +1157,7 @@ if(corridorStart){
  const timer=setInterval(()=>{if(game?.scene?.scenes?.[0]?.sys?.isActive()){clearInterval(timer);game.scene.stop('Lab');game.scene.start('Corridor');}},100);
 }
 
-// V170: second right-side tap held within 320ms sprints until released.
+// V171: second right-side tap held within 320ms sprints until released.
 let lastRightTap=-Infinity;
 window.corridorSprint=false;
 let firstWalkAudioPrimed=false;
