@@ -818,6 +818,8 @@ function corridorSay(n){
 class Corridor extends Phaser.Scene{
  constructor(){super('Corridor')}
  preload(){
+  this.load.spritesheet('cigHealth','assets/cigarette_spritesheet.png',{frameWidth:350,frameHeight:90});
+  this.load.image('cigLife','assets/cigarette_pack_life.png');
   this.load.image('corridorA','assets/8EF0DC8E-FBF3-4105-A55F-A59882BAFC81.png');
   this.load.image('corridorB','assets/A5034D6D-327A-4433-A918-922D6BCBD0F2.png');
   this.load.image('corridorJumpSheet','assets/9FECA89D-DEC1-4C4D-888E-E34756125E3C.png');
@@ -827,6 +829,30 @@ class Corridor extends Phaser.Scene{
   // Corridor owns the entire screen. Stop any leftover lobby/office scene.
   if(this.scene.isActive('Lab'))this.scene.stop('Lab');
   this.cameras.main.setBackgroundColor('#02050b');
+  // Corridor-only HUD. Lives are independent of the cigarette's current health.
+  this.health=100;this.lives=3;
+  this.healthSprite=this.add.sprite(18,20,'cigHealth',0).setOrigin(0,0).setScrollFactor(0).setDepth(1000);
+  this.healthSprite.setDisplaySize(175,45);
+  this.lifePacks=Array.from({length:3},(_,i)=>this.add.image(20+i*48,68,'cigLife')
+    .setOrigin(0,0).setDisplaySize(38,52).setScrollFactor(0).setDepth(1000));
+  this.setHealth=value=>{
+   this.health=Phaser.Math.Clamp(value,0,100);
+   this.healthSprite.setFrame(Math.min(10,Math.floor((100-this.health)/10)));
+  };
+  this.takeDamage=amount=>{
+   if(this.lives<=0||this.damageLocked)return;
+   this.setHealth(this.health-amount);
+   if(this.health>0)return;
+   this.damageLocked=true;
+   const pack=this.lifePacks[--this.lives];
+   this.tweens.add({targets:pack,alpha:0,duration:100,yoyo:true,repeat:2,
+    onComplete:()=>{pack.setVisible(false);this.damageLocked=false;
+     if(this.lives>0)this.setHealth(100);
+     else this.add.text(this.scale.width/2,this.scale.height/2,'GAME OVER',
+      {fontFamily:'monospace',fontSize:'32px',color:'#ffffff'})
+      .setOrigin(.5).setScrollFactor(0).setDepth(1100);
+    }});
+  };
   window.tokyoAlarmActive=true;document.body.classList.add('alarm-active');
   const a=this.textures.get('corridorA').getSourceImage(),b=this.textures.get('corridorB').getSourceImage();
   // Classify by actual pixels, not aspect ratio: the laser atlas is overwhelmingly red.
