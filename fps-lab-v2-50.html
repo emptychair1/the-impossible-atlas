@@ -20,12 +20,12 @@ function deskCollision(x,y){return deskDistance(x,y)<.22}
 function drawDesk(){
 const mid=V/2+pitch,wallH=.40,topH=.425,eye=.5;
 for(let sx=0;sx<W;sx++){
-let cx=(2*sx/W-1)/.82,rx=Math.cos(ang)-Math.sin(ang)*cx,ry=Math.sin(ang)+Math.cos(ang)*cx,best=1e9,face=-1;
-for(let i=0;i<deskSegments.length;i++){let [a,b]=deskSegments[i],vx=b[0]-a[0],vy=b[1]-a[1],det=rx*vy-ry*vx;if(Math.abs(det)<1e-7)continue;let ox=a[0]-px,oy=a[1]-py,t=(ox*vy-oy*vx)/det,u=(ox*ry-oy*rx)/det;if(t>.08&&u>=0&&u<=1&&t<best){best=t;face=i}}
+let cx=(2*sx/W-1)/.82,rx=Math.cos(ang)-Math.sin(ang)*cx,ry=Math.sin(ang)+Math.cos(ang)*cx,best=1e9,face=-1,faceU=0;
+for(let i=0;i<deskSegments.length;i++){let [a,b]=deskSegments[i],vx=b[0]-a[0],vy=b[1]-a[1],det=rx*vy-ry*vx;if(Math.abs(det)<1e-7)continue;let ox=a[0]-px,oy=a[1]-py,t=(ox*vy-oy*vx)/det,u=(ox*ry-oy*rx)/det;if(t>.08&&u>=0&&u<=1&&t<best){best=t;face=i;faceU=u}}
 let wallDepth=Math.min(best,z[sx]);
 if(face>=0&&best<z[sx]){
 let h=V*.9/best,top=Math.max(0,Math.floor(mid+h*(eye-wallH))),bottom=Math.min(V,Math.ceil(mid+h*eye));
-if(bottom>top){let shade=Math.max(.50,1-best*.035)*(face>=6?.75:.83+face*.02);for(let sy=top;sy<bottom;sy++){let vv=(sy-top)/Math.max(1,bottom-top),uu=((face*.83)+u)*.72,rgb=deskSkinPixel(uu,vv);if(!rgb){let q=Math.floor(169*shade);rgb=[q,q,q]}else rgb=rgb.map(c=>Math.max(0,Math.min(255,Math.floor(c*shade))));g.fillStyle='rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';g.fillRect(sx,sy,1,1)}}
+if(bottom>top){let shade=Math.max(.50,1-best*.035)*(face>=6?.75:.83+face*.02);for(let sy=top;sy<bottom;sy++){let vv=(sy-top)/Math.max(1,bottom-top),uu=((face*.83)+faceU)*.72,rgb=deskSkinPixel(uu,vv);if(!rgb){let q=Math.floor(169*shade);rgb=[q,q,q]}else rgb=rgb.map(c=>Math.max(0,Math.min(255,Math.floor(c*shade))));g.fillStyle='rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';g.fillRect(sx,sy,1,1)}}
 }
 // Horizontal countertop is a thin slab around the desk outline.
 // Depth-test against architecture and vertical front so the top reads in 3D.
