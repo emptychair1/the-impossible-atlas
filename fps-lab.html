@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover,user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#080f16"><title>Impossible Atlas | FPS Lab V1</title>
+<style>*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050a0f;color:#aee9e8;font-family:monospace;touch-action:none;user-select:none}#screen{position:absolute;width:100%;height:100%;object-fit:fill;image-rendering:pixelated}#hud{position:absolute;bottom:0;left:0;width:100%;height:19%;min-height:47px;background:linear-gradient(#37434b,#151c24);border-top:3px solid #657982;display:flex;justify-content:space-around;align-items:center;pointer-events:none;text-shadow:1px 1px #000;box-shadow:inset 0 3px #111}#hud .unit{text-align:center;min-width:17%;font-size:clamp(9px,1.6vw,17px)}#hud strong{display:block;font-size:clamp(14px,3vw,30px);color:#9be8f3}#hud small{display:block;color:#b8bfc4;font-size:clamp(7px,1.1vw,12px)}#portrait{height:90%;aspect-ratio:1;background:#0a161d;border:3px ridge #76838b;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#9ad3d8;font-size:clamp(9px,1.5vw,14px);text-align:center}#portrait span{font-size:clamp(15px,3vw,29px)}#top{position:absolute;top:env(safe-area-inset-top);left:env(safe-area-inset-left);padding:6px 10px;background:#071016b8;font-size:clamp(10px,1.6vw,14px);pointer-events:none}#msg{position:absolute;top:12%;width:100%;text-align:center;color:#b9f3ef;text-shadow:2px 2px #000;font-size:clamp(12px,2vw,20px);pointer-events:none}#rotate{display:none;position:absolute;inset:0;background:#071015;z-index:10;align-items:center;justify-content:center;text-align:center;padding:25px;font-size:20px}@media(orientation:portrait){#rotate{display:flex}}#hint{position:absolute;right:env(safe-area-inset-right);top:env(safe-area-inset-top);font-size:10px;color:#8da6ae;padding:8px;pointer-events:none}@media(max-width:650px){#hint{display:none}}</style></head>
+<body><canvas id="screen" width="480" height="270"></canvas><div id="top">THE IMPOSSIBLE ATLAS · FPS LAB V1<br>02:17 AM / TOKYO · ASSET P-1</div><div id="hint">WASD move · arrows/mouse look · space fire · R reset</div><div id="msg">CONTRACT: DISABLE SECURITY CAMERA. REACH SERVER ROOM.</div><div id="hud"><div class="unit"><strong id="ammo">06 / 18</strong><small>EMP DARTS</small></div><div class="unit"><strong id="stealth">HIDDEN</strong><small>VISIBILITY</small></div><div id="portrait"><span>◈</span><small id="link">SIGNAL OFFLINE</small></div><div class="unit"><strong id="health">100</strong><small>HEALTH</small></div><div class="unit"><strong id="atlas">STABLE</strong><small>ATLAS</small></div></div><div id="rotate">↻ ROTATE YOUR IPHONE<br>LANDSCAPE TO ENTER THE LAB</div>
+<script>
+(()=>{'use strict';
+const cv=document.getElementById('screen'),ctx=cv.getContext('2d',{alpha:false});ctx.imageSmoothingEnabled=false;
+const W=480,H=270,viewH=219,TAU=Math.PI*2;
+const map=[
+'1111111111111111',
+'1000000000000001',
+'1000000000000001',
+'1000011100000001',
+'1000010100000001',
+'1000010100000001',
+'1000010100000001',
+'1000010100000001',
+'1000010100000001',
+'1000010100000001',
+'1000000000000001',
+'1000000000000001',
+'1111111111111111'];
+let px=2.6,py=9.2,ang=-Math.PI/2,pitch=0,ammo=6,reserve=18,health=100,flash=0,camDisabled=false,alarm=0,finished=false,keys={},messageUntil=performance.now()+6500;
+const cam={x:10.4,y:3.2};let touches=new Map(),last=performance.now(),zBuffer=new Float32Array(W);
+const hud=(id,v)=>document.getElementById(id).textContent=v;
+function wall(x,y){let ix=Math.floor(x),iy=Math.floor(y);return iy<0||iy>=map.length||ix<0||ix>=map[0].length||map[iy][ix]==='1'}
+function can(x,y){let r=.19;return !wall(x-r,y-r)&&!wall(x+r,y-r)&&!wall(x-r,y+r)&&!wall(x+r,y+r)}
+function say(s,ms=2300){hud('msg',s);messageUntil=performance.now()+ms}
+function fire(){if(finished||ammo<=0){say('NO DARTS · PRESS R TO RESET');return}ammo--;flash=.17;hud('ammo',String(ammo).padStart(2,'0')+' / '+reserve);let dx=cam.x-px,dy=cam.y-py,dist=Math.hypot(dx,dy),delta=Math.atan2(Math.sin(Math.atan2(dy,dx)-ang),Math.cos(Math.atan2(dy,dx)-ang));let clear=true;for(let t=.2;t<dist;t+=.08)if(wall(px+dx*t/dist,py+dy*t/dist)){clear=false;break}if(!camDisabled&&dist<8&&Math.abs(delta)<.15&&clear){camDisabled=true;alarm=0;say('CAMERA DISABLED · REACH THE SERVER ROOM',4000)}else say('DART MISSED')}
+function reset(){px=2.6;py=9.2;ang=-Math.PI/2;ammo=6;reserve=18;health=100;camDisabled=false;alarm=0;finished=false;hud('ammo','06 / 18');hud('health','100');hud('link','SIGNAL OFFLINE');say('CONTRACT: DISABLE CAMERA. REACH SERVER ROOM.',4000)}
+function move(forward,side,dt){let sp=3*dt,dx=(Math.cos(ang)*forward-Math.sin(ang)*side)*sp,dy=(Math.sin(ang)*forward+Math.cos(ang)*side)*sp;if(can(px+dx,py))px+=dx;if(can(px,py+dy))py+=dy}
+function project(x,y){let dx=x-px,dy=y-py,dist=Math.hypot(dx,dy),a=Math.atan2(Math.sin(Math.atan2(dy,dx)-ang),Math.cos(Math.atan2(dy,dx)-ang));return {dist,a,sx:W/2+Math.tan(a)*W*.82}}
+function render(now){let dt=Math.min(.04,(now-last)/1000);last=now;
+let f=(keys.w||keys.ArrowUp?1:0)-(keys.s||keys.ArrowDown?1:0),s=(keys.d?1:0)-(keys.a?1:0);if(keys.ArrowLeft)ang-=dt*1.9;if(keys.ArrowRight)ang+=dt*1.9;
+for(const t of touches.values())if(t.zone==='move'){f+=Math.max(-1,Math.min(1,-(t.y-t.sy)/48));s+=Math.max(-1,Math.min(1,(t.x-t.sx)/48))}let m=Math.max(1,Math.hypot(f,s));move(f/m,s/m,dt);
+if(!camDisabled&&!finished){let dist=Math.hypot(cam.x-px,cam.y-py);let scan=Math.sin(now*.0007)*.75+Math.PI*.77;let towards=Math.atan2(py-cam.y,px-cam.x);let d=Math.atan2(Math.sin(towards-scan),Math.cos(towards-scan));let clear=true;for(let k=.2;k<dist;k+=.12)if(wall(cam.x+(px-cam.x)*k/dist,cam.y+(py-cam.y)*k/dist)){clear=false;break}alarm=Math.max(0,Math.min(1,alarm+(dist<7&&Math.abs(d)<.52&&clear?dt*.65:-dt*.35)));if(alarm>=1){health=Math.max(0,health-dt*7);hud('health',Math.ceil(health));if(health<=0){say('SECURITY LOCKDOWN · PRESS R TO RESTART',100000);finished=true}}}
+hud('stealth',camDisabled?'OFFLINE':alarm>.5?'DETECTED':alarm>.12?'EXPOSED':'HIDDEN');
+if(camDisabled&&px>12&&py<3.2&&!finished){finished=true;hud('link','PIPER // LINK');say('ASSET P-1: WHO SENT YOU?',100000)}
+ctx.fillStyle='#101923';ctx.fillRect(0,0,W,viewH/2+pitch);ctx.fillStyle='#24282a';ctx.fillRect(0,viewH/2+pitch,W,viewH);
+for(let y=0;y<viewH;y+=7){ctx.fillStyle=y<viewH/2+pitch?'#17222a':'#303234';ctx.fillRect(0,y,W,1)}
+for(let x=0;x<W;x+=2){let ra=ang+Math.atan((x-W/2)/(W*.82)),rx=Math.cos(ra),ry=Math.sin(ra),mx=Math.floor(px),my=Math.floor(py),ddx=Math.abs(1/rx),ddy=Math.abs(1/ry),sx=rx<0?-1:1,sy=ry<0?-1:1,sdx=(rx<0?px-mx:mx+1-px)*ddx,sdy=(ry<0?py-my:my+1-py)*ddy,side=0;for(let j=0;j<28;j++){if(sdx<sdy){sdx+=ddx;mx+=sx;side=0}else{sdy+=ddy;my+=sy;side=1}if(wall(mx,my))break}let dist=Math.max(.12,(side===0?sdx-ddx:sdy-ddy)*Math.cos(ra-ang));zBuffer[x]=zBuffer[x+1]=dist;let height=Math.min(900,viewH/dist*.82),top=Math.round((viewH-height)/2+pitch),shade=Math.max(15,145-dist*13-(side?24:0)),stripe=((side?my:mx)%3===0)?15:0;ctx.fillStyle='rgb('+Math.round(shade*.52+stripe)+','+Math.round(shade*.75+stripe)+','+Math.round(shade*.82+stripe)+')';ctx.fillRect(x,top,2,height);ctx.fillStyle='rgba(2,9,13,.45)';ctx.fillRect(x,top+height*.18,2,2);ctx.fillRect(x,top+height*.78,2,2);if(dist<6){ctx.fillStyle='rgba(110,202,210,.1)';ctx.fillRect(x,top,2,height)}}
+let p=project(cam.x,cam.y);if(p.dist>0.3&&Math.abs(p.a)<.65&&p.dist<zBuffer[Math.max(0,Math.min(W-1,Math.floor(p.sx)))] +.3){let size=Math.min(80,75/p.dist),xx=p.sx-size/2,yy=viewH/2-size*.7+pitch;ctx.fillStyle='#11171c';ctx.fillRect(xx,yy,size,size*.55);ctx.fillStyle=camDisabled?'#43786f':'#a33c43';ctx.fillRect(xx+size*.18,yy+size*.12,size*.6,size*.22);ctx.fillStyle='#899da1';ctx.fillRect(xx+size*.3,yy+size*.35,size*.4,size*.18)}
+ctx.strokeStyle='#a2e5e2';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(233,viewH/2+pitch);ctx.lineTo(239,viewH/2+pitch);ctx.moveTo(241,viewH/2+pitch);ctx.lineTo(247,viewH/2+pitch);ctx.moveTo(240,viewH/2-7+pitch);ctx.lineTo(240,viewH/2-2+pitch);ctx.moveTo(240,viewH/2+2+pitch);ctx.lineTo(240,viewH/2+7+pitch);ctx.stroke();
+flash=Math.max(0,flash-dt);let kick=flash>0?5:0;let gx=W/2,gy=viewH+10+kick;ctx.fillStyle='#131b21';ctx.beginPath();ctx.moveTo(gx-42,gy);ctx.lineTo(gx-30,gy-52);ctx.lineTo(gx-18,gy-64);ctx.lineTo(gx+19,gy-64);ctx.lineTo(gx+31,gy-52);ctx.lineTo(gx+44,gy);ctx.fill();ctx.fillStyle='#57666d';ctx.fillRect(gx-14,gy-100,28,58);ctx.fillStyle='#1c262c';ctx.fillRect(gx-10,gy-106,20,60);ctx.fillStyle='#8a9ba0';ctx.fillRect(gx-5,gy-111,10,6);ctx.fillStyle='#34454d';ctx.fillRect(gx-24,gy-41,48,17);ctx.fillStyle='#222c33';ctx.fillRect(gx-37,gy-17,74,40);if(flash){ctx.fillStyle='#b8ffff';ctx.fillRect(gx-7,gy-124,14,12);ctx.fillStyle='#69dce7';ctx.fillRect(gx-3,gy-132,6,9)}
+if(now>messageUntil)hud('msg','');requestAnimationFrame(render)}
+window.addEventListener('keydown',e=>{keys[e.key]=true;if(e.code==='Space'){e.preventDefault();fire()}if(e.key.toLowerCase()==='r')reset()});window.addEventListener('keyup',e=>keys[e.key]=false);
+cv.addEventListener('pointerdown',e=>{e.preventDefault();let r=cv.getBoundingClientRect(),x=e.clientX-r.left,y=e.clientY-r.top,zone=x<r.width*.47?'move':y>r.height*.43?'gun':'look';touches.set(e.pointerId,{zone,x,y,sx:x,sy:y,started:performance.now()});cv.setPointerCapture(e.pointerId)});
+cv.addEventListener('pointermove',e=>{let t=touches.get(e.pointerId);if(!t)return;let x=e.clientX,y=e.clientY;if(t.zone==='look'||t.zone==='gun'&&Math.abs(x-t.sx)>25){ang+=(x-t.x)*.004;pitch=Math.max(-45,Math.min(45,pitch+(y-t.y)*.22))}t.x=x;t.y=y});
+cv.addEventListener('pointerup',e=>{let t=touches.get(e.pointerId);if(t&&t.zone==='gun'&&t.sy-t.y>24&&performance.now()-t.started<650)fire();touches.delete(e.pointerId)});cv.addEventListener('pointercancel',e=>touches.delete(e.pointerId));
+cv.addEventListener('contextmenu',e=>e.preventDefault());requestAnimationFrame(render);
+})();
+</script></body></html>
