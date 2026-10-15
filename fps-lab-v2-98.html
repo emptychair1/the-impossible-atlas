@@ -83,7 +83,7 @@ async function initCameraModel(){try{
  say('SIX CAMERA GLBS LOADED · 3 PER SIDE',7000);
  window.atlasIRBeams=mounts.map((mount,i)=>{const beam=new THREE.Mesh(new THREE.ConeGeometry(.83,2.7,24,1,true),new THREE.MeshBasicMaterial({color:0x8cffb4,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide}));beam.visible=false;modelScene.add(beam);return {beam,mount,pos:cameraPositions[i],THREE};});window.atlasCameraMounts=mounts;window.atlasCameraLEDs=statusLEDs;
  window.atlasThree=THREE;
- try{const statueGltf=await new GLTFLoader().loadAsync('assets/woman_statue.glb');const statue=statueGltf.scene;const box0=new THREE.Box3().setFromObject(statue);const size0=box0.getSize(new THREE.Vector3());if(size0.y>.0001){statue.scale.setScalar(.78/size0.y);const box=new THREE.Box3().setFromObject(statue),center=box.getCenter(new THREE.Vector3());statue.position.set(8-center.x,-box.min.y,8.05-center.z);modelScene.add(statue);window.atlasStatue=statue}}catch(err){console.error('Statue GLB load failed',err)}
+ try{const statueGltf=await new GLTFLoader().loadAsync('assets/woman_statue.glb');const statue=statueGltf.scene;const box0=new THREE.Box3().setFromObject(statue);const size0=box0.getSize(new THREE.Vector3());if(size0.y>.0001){statue.scale.setScalar(.78/size0.y);statue.rotation.y=Math.PI;statue.updateMatrixWorld(true);const box=new THREE.Box3().setFromObject(statue),center=box.getCenter(new THREE.Vector3());statue.position.set(8-center.x,-box.min.y,8.05-center.z);modelScene.add(statue);window.atlasStatue=statue}}catch(err){console.error('Statue GLB load failed',err)}
 
  }catch(err){console.error('Camera GLB load failed',err);say('CAMERA MODEL LOAD ERROR: '+String(err.message||err).slice(0,90),12000)}}
 initCameraModel();
